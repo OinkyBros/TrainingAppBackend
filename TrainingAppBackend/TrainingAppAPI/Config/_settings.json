@@ -1,0 +1,13 @@
+﻿{
+  "Kestrel": {
+    "Endpoints": {
+      "Https": {
+        "Url": "https://*"
+      }
+    }
+  },
+  "RiotClientSettings": {
+    "ApiKey": "" //ADD API_KEY
+  },
+  "AllowedHosts": "*"
+}
