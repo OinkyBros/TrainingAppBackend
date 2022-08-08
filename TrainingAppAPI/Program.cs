@@ -44,11 +44,14 @@ builder.Services.AddSwaggerGen(c =>
 
 //Add ServiceLayer
 //Repos
+builder.Services.AddTransient<ISummonerRepo, SummonerFakeRepo>();
 builder.Services.AddTransient<IMatchRepo, MatchFakeRepo>();
-MatchFakeRepo.InitFake();
 //Services
 //builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<ISummonerService, SummonerService>();
 builder.Services.AddTransient<IMatchService, MatchService>();
+//Add Background Service
+builder.Services.AddHostedService<DataFetcherService>();
 
 var app = builder.Build();
 
