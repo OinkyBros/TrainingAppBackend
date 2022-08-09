@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2022 eEntwicklung.net
-using Oinky.TrainingAppAPI.Models.DB;
+﻿using Oinky.TrainingAppAPI.Models.DB;
 using Oinky.TrainingAppAPI.Models.Enums;
 using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Models.RiotAPI;
@@ -156,6 +155,59 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                 GameName = dto.Info.GameName,
                 Teams = teams
             };
+        }
+
+        public static ExtendedMatchResultDTO ToExtendedResultModel(this MatchDB db)
+        {
+            ExtendedMatchResultDTO result = new ExtendedMatchResultDTO()
+            {
+                Duration = db.GameDuration,
+                GameStart = db.GameStartTimestamp,
+                MatchID = db.MatchID,
+                Mode = db.GameMode,
+                Teams = new List<ExtendedTeamResultDTO>()
+            };
+
+            foreach (TeamDB team in db.Teams)
+            {
+                ExtendedTeamResultDTO teamDTO = new ExtendedTeamResultDTO()
+                {
+                    TeamID = team.IngameID,
+                    Win = team.Win,
+                    Inhibitors = team.Inhibitors,
+                    Towers = team.Towers,
+                    Participants = new List<ExtendedParticipantResultDTO>()
+                };
+                int assists = 0;
+                int kills = 0;
+                int deaths = 0;
+                foreach (ParticipantDB part in team.Participants)
+                {
+                    ExtendedParticipantResultDTO participantDTO = new ExtendedParticipantResultDTO()
+                    {
+                        Champion = part.ChampionName,
+                        ChampionIcon = null,
+                        Icon = null,
+                        IsOinky = CheckIfOinky(part.SummonerName),
+                        Role = part.Role,
+                        SummonerID = part.Puuid,
+                        SummonerName = part.SummonerName,
+                        Assists = part.Assists,
+                        Deaths = part.Deaths,
+                        Kills = part.Kills
+                    };
+                    assists += participantDTO.Assists;
+                    kills += participantDTO.Kills;
+                    deaths += participantDTO.Deaths;
+                    teamDTO.Participants.Add(participantDTO);
+                }
+                teamDTO.Assists = assists;
+                teamDTO.Kills = kills;
+                teamDTO.Deaths = deaths;
+                result.Teams.Add(teamDTO);
+            }
+
+            return result;
         }
 
         public static MatchResultDTO ToResultModel(this MatchDB db)

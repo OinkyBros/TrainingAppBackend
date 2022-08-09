@@ -22,6 +22,11 @@ namespace Oinky.TrainingAppAPI.Services
             return await m_matchRepo.AddMatchAsync(matchDB);
         }
 
+        public async Task<ExtendedMatchResultDTO> GetMatchAsync(string matchID)
+        {
+            return await m_matchRepo.GetMatchAsync(matchID);
+        }
+
         private IMatchRepo m_matchRepo;
     }
 }

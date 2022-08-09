@@ -27,10 +27,25 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<MatchResultDTO>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No matches for the given parameters found.")]
-        public async Task<IActionResult> GetMachtes(int limit = 20, string summonername = null, long? from = null, long? to = null)
+        public async Task<IActionResult> GetMatches(int limit = 20, string summonername = null, long? from = null, long? to = null)
         {
             List<MatchResultDTO> matches = await m_matchesService.GetMatchesAsync(limit, summonername, from, to);
             return matches != null ? Ok(matches) : NotFound();
+        }
+
+        /// <summary>
+        /// Get a specific Match.
+        /// </summary>
+        /// <param name="matchID">The id of the requested match</param>
+        /// <returns>Details of the specific match</returns>
+        [HttpGet]
+        [Route("{matchID}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(ExtendedMatchResultDTO))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match with the given ID found")]
+        public async Task<IActionResult> GetMatch(string matchID)
+        {
+            ExtendedMatchResultDTO match = await m_matchesService.GetMatchAsync(matchID);
+            return match != null ? Ok(match) : NotFound();
         }
 
         private IMatchService m_matchesService;

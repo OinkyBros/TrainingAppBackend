@@ -1,5 +1,4 @@
-﻿// Copyright (c) 2022 eEntwicklung.net
-using Oinky.TrainingAppAPI.Models.DB;
+﻿using Oinky.TrainingAppAPI.Models.DB;
 using Oinky.TrainingAppAPI.Models.Extensions;
 using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Repositories.Interfaces;
@@ -21,6 +20,15 @@ namespace Oinky.TrainingAppAPI.Repositories
         public Task<bool> AddMatchesAsync(List<MatchDB> matches)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ExtendedMatchResultDTO> GetMatchAsync(string matchID)
+        {
+            if (!m_matches.ContainsKey(matchID))
+                return null;
+            if (!m_matches.TryGetValue(matchID, out MatchDB match))
+                await Task.Delay(100);
+            return match.ToExtendedResultModel();
         }
 
         public Task<List<MatchResultDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to)
