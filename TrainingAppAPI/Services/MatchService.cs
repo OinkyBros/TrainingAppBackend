@@ -12,9 +12,9 @@ namespace Oinky.TrainingAppAPI.Services
             m_matchRepo = matchRepo;
         }
 
-        public async Task<List<Match>> GetMatchesAsync()
+        public async Task<List<MatchResultDTO>> GetMatchesAsync(int limit, string summonername = null, long? from = null, long? to = null)
         {
-            return await m_matchRepo.GetMatchesAsync();
+            return await m_matchRepo.GetMatchesAsync(limit, summonername, from, to);
         }
 
         public async Task<bool> AddMatchAsync(MatchDB matchDB)

@@ -1,4 +1,5 @@
-﻿using Oinky.TrainingAppAPI.Models.Configuration;
+﻿using Microsoft.Extensions.Logging;
+using Oinky.TrainingAppAPI.Models.Configuration;
 using Oinky.TrainingAppAPI.Models.RiotAPI;
 
 namespace Oinky.TrainingAppAPI
@@ -7,12 +8,13 @@ namespace Oinky.TrainingAppAPI
     {
         public static RiotClient Instance => m_instance;
 
-        private RiotClient(RiotClientSettings settings)
+        private RiotClient(RiotClientSettings settings, ILogger<RiotClient> logger)
         {
             m_settings = settings;
+            m_logger = logger;
         }
 
-        public static RiotClient Init(RiotClientSettings settings)
+        public static RiotClient Init(RiotClientSettings settings, ILogger<RiotClient> logger)
         {
             if (m_instance == null)
             {
@@ -20,7 +22,7 @@ namespace Oinky.TrainingAppAPI
                 {
                     if (m_instance == null)
                     {
-                        var instance = new RiotClient(settings);
+                        var instance = new RiotClient(settings, logger);
                         if (instance.Init())
                             m_instance = instance;
                     }
@@ -48,16 +50,24 @@ namespace Oinky.TrainingAppAPI
 
         public async Task<MatchRiotDTO> FetchMatchAsync(string matchID)
         {
+            HttpResponseMessage result = null;
             try
             {
                 var url = "/lol/match/v5/matches/" + matchID;
-                var result = await m_httpClient.GetAsync(url);
+                result = await m_httpClient.GetAsync(url);
                 if (result.IsSuccessStatusCode)
                     return await result.Content.ReadFromJsonAsync<MatchRiotDTO>();
+                else if (result.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                {
+                    m_logger.LogWarning("To many requests. Wait for 60 Seconds");
+                    await Task.Delay(60 * 1000);
+                    return await FetchMatchAsync(matchID);
+                }
+                m_logger.LogWarning("Unknown Statuscode in FetchMatchAsync: " + result.StatusCode);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                m_logger.LogError(exception: ex, message: ex.Message);
             }
 
             return null;
@@ -73,15 +83,15 @@ namespace Oinky.TrainingAppAPI
                     return await result.Content.ReadFromJsonAsync<List<string>>();
                 else if (result.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                 {
-                    Console.WriteLine("To many requests. Wait for 60 Seconds");
+                    m_logger.LogWarning("To many requests. Wait for 60 Seconds");
                     await Task.Delay(60 * 1000);
                     return await FetchMatchIDsAsync(puuid, startTimestamp, limit);
                 }
-                Console.WriteLine("Statuscode: " + result.StatusCode);
+                m_logger.LogWarning("Unknown Statuscode in FetchMatchAsync: " + result.StatusCode);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                m_logger.LogError(exception: ex, message: ex.Message);
             }
             return null;
         }
@@ -106,6 +116,7 @@ namespace Oinky.TrainingAppAPI
         private static RiotClient m_instance = null;
         private static object m_lock = new();
         private RiotClientSettings m_settings;
+        private ILogger<RiotClient> m_logger;
         private HttpClient m_httpClient;
     }
 }

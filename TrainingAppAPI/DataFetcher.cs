@@ -8,11 +8,12 @@ namespace Oinky.TrainingAppAPI
 {
     public class DataFetcher
     {
-        public DataFetcher(IConfiguration configuration, ISummonerService summonerService, IMatchService matchService)
+        public DataFetcher(ILogger<DataFetcher> logger, IConfiguration configuration, ISummonerService summonerService, IMatchService matchService)
         {
             m_config = configuration;
             m_summonerService = summonerService;
             m_matchService = matchService;
+            m_logger = logger;
         }
 
         public async Task RunAsync(CancellationToken token)
@@ -22,13 +23,17 @@ namespace Oinky.TrainingAppAPI
             //Get Registered Summoners
             List<SummonerDB> summoners = await m_summonerService.GetSummonersAsync();
             if (summoners == null || summoners.Count == 0)
+            {
+                m_logger.LogInformation("No summoners present. Fill up with initial summoners");
                 await GetInitialSummonersAsync();
+            }
             summoners = await m_summonerService.GetSummonersAsync();
             long timestamp = FIRST_TIMESTAMP;
             int limit = 100;
             //Catchup for every summoner
             foreach (SummonerDB summoner in summoners)
             {
+                m_logger.LogInformation("Get matches for: " + summoner.DisplayName);
                 timestamp = FIRST_TIMESTAMP;
                 bool fetchMore = true;
                 while (fetchMore)
@@ -38,6 +43,8 @@ namespace Oinky.TrainingAppAPI
                     {
                         MatchRiotDTO matchDTO = await m_riotClient.FetchMatchAsync(matchID);
                         //Check GameMode
+                        while (matchDTO == null)
+                            matchDTO = await m_riotClient.FetchMatchAsync(matchID);
                         if (MatchExtension.ConvertRiotMode(matchDTO.Info.QueueId) < 0)
                             continue;
                         //Check if enough Oinkies
@@ -49,6 +56,8 @@ namespace Oinky.TrainingAppAPI
                     fetchMore = matchIDs.Count > limit;
                 }
             }
+
+            m_logger.LogInformation("Finished Initialisation");
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(60 * 1000);
@@ -91,6 +100,7 @@ namespace Oinky.TrainingAppAPI
         private static readonly long FIRST_TIMESTAMP = 1659304800;
         private IConfiguration m_config;
         private IMatchService m_matchService;
+        private ILogger<DataFetcher> m_logger;
         private RiotClient m_riotClient;
         private ISummonerService m_summonerService;
     }

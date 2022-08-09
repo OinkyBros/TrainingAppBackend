@@ -7,6 +7,7 @@ using Oinky.TrainingAppAPI.Repositories;
 using Oinky.TrainingAppAPI.Repositories.Interfaces;
 using Oinky.TrainingAppAPI.Services;
 using Oinky.TrainingAppAPI.Services.Interfaces;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 IWebHostEnvironment environment = builder.Environment;
@@ -21,9 +22,6 @@ configuration.SetBasePath(Path.Combine(environment.ContentRootPath, "Config"));
 configuration.AddJsonFile("settings.json", optional: false, reloadOnChange: true); //Main settings
 //configuration.AddJsonFile("dbsettings.json", optional: false, reloadOnChange: true); //DB settings
 //configuration.AddJsonFile("logsettings.json", optional: true, reloadOnChange: false); //Logger settings
-
-//Init RiotClient
-RiotClient.Init(builder.Configuration.GetSection("RiotClientSettings").Get<RiotClientSettings>());
 
 builder.Services.AddCors(options =>
 {
@@ -40,7 +38,12 @@ builder.Services.AddApiVersioning(config =>
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Oinky TrainingApp API", Version = "v1" });
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 });
+
+//Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 //Add ServiceLayer
 //Repos
@@ -55,14 +58,20 @@ builder.Services.AddHostedService<DataFetcherService>();
 
 var app = builder.Build();
 
+//Init RiotClient
+RiotClient.Init(builder.Configuration.GetSection("RiotClientSettings").Get<RiotClientSettings>(), app.Services.GetRequiredService<ILogger<RiotClient>>());
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oinky TrainingApp API v1"));
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oinky TrainingApp API v1");
+    });
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {

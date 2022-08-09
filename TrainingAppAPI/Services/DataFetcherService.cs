@@ -11,7 +11,7 @@ namespace Oinky.TrainingAppAPI.Services
         public DataFetcherService(IConfiguration configuration, ILoggerFactory loggerFactory, ISummonerService summonerService, IMatchService matchService)
         {
             Configuration = configuration;
-            m_dataFetcher = new DataFetcher(Configuration, summonerService, matchService);
+            m_dataFetcher = new DataFetcher(loggerFactory.CreateLogger<DataFetcher>(), Configuration, summonerService, matchService);
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)

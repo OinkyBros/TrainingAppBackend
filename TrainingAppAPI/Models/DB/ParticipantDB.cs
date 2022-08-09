@@ -1,4 +1,4 @@
-﻿using Oinky.TrainingAppAPI.Models.Result;
+﻿using Oinky.TrainingAppAPI.Models.Enums;
 
 namespace Oinky.TrainingAppAPI.Models.DB
 {

@@ -5,7 +5,7 @@ namespace Oinky.TrainingAppAPI.Repositories.Interfaces
 {
     public interface IMatchRepo
     {
-        Task<List<Match>> GetMatchesAsync();
+        Task<List<MatchResultDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to);
 
         Task<bool> AddMatchesAsync(List<MatchDB> matches);
 

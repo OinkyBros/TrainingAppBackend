@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Oinky.TrainingAppAPI.Models.Result
+namespace Oinky.TrainingAppAPI.Models.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum GameMode

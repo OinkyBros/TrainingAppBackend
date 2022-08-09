@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using Oinky.TrainingAppAPI.Models.Enums;
+using System.Text.Json.Serialization;
 
 namespace Oinky.TrainingAppAPI.Models.Result
 {
-    public class Participant
+    public class ParticipantResultDTO
     {
         [JsonPropertyName("Champion")]
         public string Champion { get; set; } = null;
