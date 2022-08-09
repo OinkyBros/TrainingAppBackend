@@ -64,13 +64,13 @@ RiotClient.Init(builder.Configuration.GetSection("RiotClientSettings").Get<RiotC
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oinky TrainingApp API v1");
-    });
+  
 }
-
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oinky TrainingApp API v1");
+});
 //app.UseHttpsRedirection();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
