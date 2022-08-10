@@ -23,11 +23,6 @@ configuration.AddJsonFile("settings.json", optional: false, reloadOnChange: true
 //configuration.AddJsonFile("dbsettings.json", optional: false, reloadOnChange: true); //DB settings
 //configuration.AddJsonFile("logsettings.json", optional: true, reloadOnChange: false); //Logger settings
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials().Build());
-});
-
 builder.Services.AddControllers();
 builder.Services.AddApiVersioning(config =>
 {
@@ -56,6 +51,9 @@ builder.Services.AddTransient<IMatchService, MatchService>();
 //Add Background Service
 builder.Services.AddHostedService<DataFetcherService>();
 
+//CORS
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 //Init RiotClient
@@ -67,11 +65,11 @@ if (app.Environment.IsDevelopment())
   
 }
 app.UseSwagger();
+
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Oinky TrainingApp API v1");
 });
-//app.UseHttpsRedirection();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
@@ -86,9 +84,8 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.UseCors(option => option.AllowAnyOrigin().AllowAnyMethod());
+
+app.MapControllers();
 
 app.Run();
