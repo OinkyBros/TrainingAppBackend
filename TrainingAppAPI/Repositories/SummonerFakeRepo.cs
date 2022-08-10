@@ -1,7 +1,8 @@
 ﻿using Oinky.TrainingAppAPI.Models.DB;
+using Oinky.TrainingAppAPI.Repositories.Interfaces;
 using System.Collections.Concurrent;
 
-namespace Oinky.TrainingAppAPI.Repositories.Interfaces
+namespace Oinky.TrainingAppAPI.Repositories
 {
     public class SummonerFakeRepo : ISummonerRepo
     {

@@ -12,7 +12,7 @@ namespace Oinky.TrainingAppAPI.Services
             m_matchRepo = matchRepo;
         }
 
-        public async Task<List<MatchResultDTO>> GetMatchesAsync(int limit, string summonername = null, long? from = null, long? to = null)
+        public async Task<List<MatchDTO>> GetMatchesAsync(int limit, string summonername = null, long? from = null, long? to = null)
         {
             return await m_matchRepo.GetMatchesAsync(limit, summonername, from, to);
         }
@@ -22,7 +22,7 @@ namespace Oinky.TrainingAppAPI.Services
             return await m_matchRepo.AddMatchAsync(matchDB);
         }
 
-        public async Task<ExtendedMatchResultDTO> GetMatchAsync(string matchID)
+        public async Task<ExtendedMatchDTO> GetMatchAsync(string matchID)
         {
             return await m_matchRepo.GetMatchAsync(matchID);
         }

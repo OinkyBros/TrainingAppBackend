@@ -23,13 +23,13 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         /// <param name="summonername">Filter the matches for a specific summoner</param>
         /// <param name="from">Filter the matches newer than the unix timestamp</param>
         /// <param name="to">Filter the matches older than the unix timestamp </param>
-        /// <returns>A set of <see cref="MatchResultDTO"/></returns>
+        /// <returns>A set of <see cref="MatchDTO"/></returns>
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<MatchResultDTO>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<MatchDTO>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No matches for the given parameters found.")]
         public async Task<IActionResult> GetMatches(int limit = 20, string summonername = null, long? from = null, long? to = null)
         {
-            List<MatchResultDTO> matches = await m_matchesService.GetMatchesAsync(limit, summonername, from, to);
+            List<MatchDTO> matches = await m_matchesService.GetMatchesAsync(limit, summonername, from, to);
             return matches != null ? Ok(matches) : NotFound();
         }
 
@@ -40,11 +40,11 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         /// <returns>Details of the specific match</returns>
         [HttpGet]
         [Route("{matchID}")]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(ExtendedMatchResultDTO))]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(ExtendedMatchDTO))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match with the given ID found")]
         public async Task<IActionResult> GetMatch(string matchID)
         {
-            ExtendedMatchResultDTO match = await m_matchesService.GetMatchAsync(matchID);
+            ExtendedMatchDTO match = await m_matchesService.GetMatchAsync(matchID);
             return match != null ? Ok(match) : NotFound();
         }
 

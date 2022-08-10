@@ -157,33 +157,33 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             };
         }
 
-        public static ExtendedMatchResultDTO ToExtendedResultModel(this MatchDB db)
+        public static ExtendedMatchDTO ToExtendedResultModel(this MatchDB db)
         {
-            ExtendedMatchResultDTO result = new ExtendedMatchResultDTO()
+            ExtendedMatchDTO result = new ExtendedMatchDTO()
             {
                 Duration = db.GameDuration,
                 GameStart = db.GameStartTimestamp,
                 MatchID = db.MatchID,
                 Mode = db.GameMode,
-                Teams = new List<ExtendedTeamResultDTO>()
+                Teams = new List<ExtendedTeamDTO>()
             };
 
             foreach (TeamDB team in db.Teams)
             {
-                ExtendedTeamResultDTO teamDTO = new ExtendedTeamResultDTO()
+                ExtendedTeamDTO teamDTO = new ExtendedTeamDTO()
                 {
                     TeamID = team.IngameID,
                     Win = team.Win,
                     Inhibitors = team.Inhibitors,
                     Towers = team.Towers,
-                    Participants = new List<ExtendedParticipantResultDTO>()
+                    Participants = new List<ExtendedParticipantDTO>()
                 };
                 int assists = 0;
                 int kills = 0;
                 int deaths = 0;
                 foreach (ParticipantDB part in team.Participants)
                 {
-                    ExtendedParticipantResultDTO participantDTO = new ExtendedParticipantResultDTO()
+                    ExtendedParticipantDTO participantDTO = new ExtendedParticipantDTO()
                     {
                         Champion = part.ChampionName,
                         ChampionIcon = null,
@@ -210,28 +210,28 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             return result;
         }
 
-        public static MatchResultDTO ToResultModel(this MatchDB db)
+        public static MatchDTO ToResultModel(this MatchDB db)
         {
-            MatchResultDTO result = new MatchResultDTO()
+            MatchDTO result = new MatchDTO()
             {
                 Duration = db.GameDuration,
                 GameStart = db.GameStartTimestamp,
                 MatchID = db.MatchID,
                 Mode = db.GameMode,
-                Teams = new List<TeamResultDTO>()
+                Teams = new List<TeamDTO>()
             };
 
             foreach (TeamDB team in db.Teams)
             {
-                TeamResultDTO teamDTO = new TeamResultDTO()
+                TeamDTO teamDTO = new TeamDTO()
                 {
                     TeamID = team.IngameID,
                     Win = team.Win,
-                    Participants = new List<ParticipantResultDTO>()
+                    Participants = new List<ParticipantDTO>()
                 };
                 foreach (ParticipantDB participant in team.Participants)
                 {
-                    ParticipantResultDTO participantDTO = new ParticipantResultDTO()
+                    ParticipantDTO participantDTO = new ParticipantDTO()
                     {
                         Champion = participant.ChampionName,
                         ChampionIcon = null,
@@ -248,9 +248,9 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             return result;
         }
 
-        public static MatchResultDTO ToResultModel(this MatchRiotDTO dto)
+        public static MatchDTO ToResultModel(this MatchRiotDTO dto)
         {
-            MatchResultDTO resultMatch = new MatchResultDTO();
+            MatchDTO resultMatch = new MatchDTO();
 
             //Mode
             int mode = ConvertRiotMode(dto.Info.QueueId);
@@ -264,19 +264,19 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             //ID
             resultMatch.MatchID = dto.Metadata.MatchId;
             //Teams
-            resultMatch.Teams = new List<TeamResultDTO>();
+            resultMatch.Teams = new List<TeamDTO>();
             foreach (TeamRiotDTO team in dto.Info.Teams)
             {
-                TeamResultDTO resultTeam = new TeamResultDTO()
+                TeamDTO resultTeam = new TeamDTO()
                 {
                     TeamID = team.TeamId,
                     Win = team.Win,
-                    Participants = new List<ParticipantResultDTO>()
+                    Participants = new List<ParticipantDTO>()
                 };
                 List<ParticipantRiotDTO> participants = dto.Info.Participants.Where(p => p.TeamId == team.TeamId).ToList();
                 foreach (ParticipantRiotDTO p in participants)
                 {
-                    ParticipantResultDTO participant = new ParticipantResultDTO()
+                    ParticipantDTO participant = new ParticipantDTO()
                     {
                         Champion = p.ChampionName,
                         SummonerID = p.SummonerId,

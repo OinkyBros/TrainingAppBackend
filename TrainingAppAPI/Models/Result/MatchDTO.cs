@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Oinky.TrainingAppAPI.Models.Result
 {
-    public class MatchResultDTO
+    public class MatchDTO
     {
         [JsonPropertyName("Duration")]
         public int Duration { get; set; }
@@ -15,7 +15,7 @@ namespace Oinky.TrainingAppAPI.Models.Result
         public GameMode Mode { get; set; }
 
         [JsonPropertyName("Teams")]
-        public List<TeamResultDTO> Teams { get; set; } = null;
+        public List<TeamDTO> Teams { get; set; } = null;
 
         [JsonPropertyName("Timestamp")]
         public long GameStart { get; set; }

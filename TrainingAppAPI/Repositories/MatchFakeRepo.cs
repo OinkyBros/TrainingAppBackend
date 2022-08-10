@@ -22,7 +22,7 @@ namespace Oinky.TrainingAppAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<ExtendedMatchResultDTO> GetMatchAsync(string matchID)
+        public async Task<ExtendedMatchDTO> GetMatchAsync(string matchID)
         {
             if (!m_matches.ContainsKey(matchID))
                 return null;
@@ -31,7 +31,7 @@ namespace Oinky.TrainingAppAPI.Repositories
             return match.ToExtendedResultModel();
         }
 
-        public Task<List<MatchResultDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to)
+        public Task<List<MatchDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to)
         {
             List<MatchDB> results;
             //Filter for summonername
@@ -53,7 +53,7 @@ namespace Oinky.TrainingAppAPI.Repositories
             results = results.Take(limit).ToList();
 
             //Convert
-            List<MatchResultDTO> resultDTOs = new List<MatchResultDTO>();
+            List<MatchDTO> resultDTOs = new List<MatchDTO>();
             foreach (MatchDB matchDB in results)
                 resultDTOs.Add(matchDB.ToResultModel());
 

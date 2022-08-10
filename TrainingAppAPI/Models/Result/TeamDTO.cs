@@ -2,10 +2,10 @@
 
 namespace Oinky.TrainingAppAPI.Models.Result
 {
-    public class TeamResultDTO
+    public class TeamDTO
     {
         [JsonPropertyName("Participants")]
-        public List<ParticipantResultDTO> Participants { get; set; }
+        public List<ParticipantDTO> Participants { get; set; }
 
         [JsonPropertyName("TeamID")]
         public int TeamID { get; set; }

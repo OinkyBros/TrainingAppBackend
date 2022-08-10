@@ -2,7 +2,7 @@
 
 namespace Oinky.TrainingAppAPI.Models.Result
 {
-    public class ExtendedParticipantResultDTO : ParticipantResultDTO
+    public class ExtendedParticipantDTO : ParticipantDTO
     {
         [JsonPropertyName("Assists")]
         public int Assists { get; set; }

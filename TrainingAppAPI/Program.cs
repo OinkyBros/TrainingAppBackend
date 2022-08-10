@@ -44,10 +44,12 @@ builder.Logging.AddConsole();
 //Repos
 builder.Services.AddTransient<ISummonerRepo, SummonerFakeRepo>();
 builder.Services.AddTransient<IMatchRepo, MatchFakeRepo>();
+builder.Services.AddTransient<IGoalRepo, GoalFakeRepo>();
 //Services
 //builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<ISummonerService, SummonerService>();
 builder.Services.AddTransient<IMatchService, MatchService>();
+builder.Services.AddTransient<IGoalService, GoalService>();
 //Add Background Service
 builder.Services.AddHostedService<DataFetcherService>();
 
@@ -62,7 +64,6 @@ RiotClient.Init(builder.Configuration.GetSection("RiotClientSettings").Get<RiotC
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-  
 }
 app.UseSwagger();
 

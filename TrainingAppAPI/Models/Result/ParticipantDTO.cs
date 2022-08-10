@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Oinky.TrainingAppAPI.Models.Result
 {
-    public class ParticipantResultDTO
+    public class ParticipantDTO
     {
         [JsonPropertyName("Champion")]
         public string Champion { get; set; } = null;
