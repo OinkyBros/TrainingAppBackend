@@ -12,5 +12,11 @@ namespace Oinky.TrainingAppAPI.Models.Result
 
         [JsonPropertyName("Kills")]
         public int Kills { get; set; }
+
+        [JsonPropertyName("CS")]
+        public int CS { get; set; }
+
+        [JsonPropertyName("Visionscore")]
+        public int VisionScore { get; set; }
     }
 }

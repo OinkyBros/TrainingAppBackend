@@ -58,10 +58,10 @@ namespace Oinky.TrainingAppAPI
             }
 
             m_logger.LogInformation("Finished Initialisation");
+            timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(60 * 1000);
-                timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 summoners = await m_summonerService.GetSummonersAsync();
                 foreach (SummonerDB summoner in summoners)
                 {
@@ -73,7 +73,7 @@ namespace Oinky.TrainingAppAPI
                         if (MatchExtension.ConvertRiotMode(matchDTO.Info.QueueId) < 0)
                             continue;
                         //Check if enough Oinkies
-                        if (matchDTO.Info.Participants.Select(p => MatchExtension.CheckIfOinky(p.SummonerName)).ToList().Count < 3)
+                        if (matchDTO.Info.Participants.Where(p => MatchExtension.CheckIfOinky(p.SummonerName)).ToList().Count < 3)
                             continue;
                         timestamp = Math.Max(timestamp, matchDTO.Info.GameStartTimestamp / 1000);
                         await m_matchService.AddMatchAsync(matchDTO.ToDBModel());

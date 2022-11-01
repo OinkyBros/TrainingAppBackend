@@ -28,7 +28,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                     Heralds = teamDTO.Objectives.RiftHerald.Kills,
                     IngameID = teamDTO.TeamId,
                     Inhibitors = teamDTO.Objectives.Inhibitor.Kills,
-                    TeamID = Guid.NewGuid(),
+                    TeamId = Guid.NewGuid(),
                     Towers = teamDTO.Objectives.Tower.Kills,
                     Win = teamDTO.Win,
                     Participants = new List<ParticipantDB>()
@@ -146,7 +146,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
 
             return new MatchDB()
             {
-                MatchID = dto.Metadata.MatchId,
+                MatchId = dto.Metadata.MatchId,
                 GameCreation = (int)(dto.Info.GameCreation / 1000),
                 GameDuration = (int)((dto.Info.GameEndTimestamp - dto.Info.GameStartTimestamp) / 1000),
                 GameEndTimestamp = (int)(dto.Info.GameEndTimestamp / 1000),
@@ -163,7 +163,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             {
                 Duration = db.GameDuration,
                 GameStart = db.GameStartTimestamp,
-                MatchID = db.MatchID,
+                MatchID = db.MatchId,
                 Mode = db.GameMode,
                 Teams = new List<ExtendedTeamDTO>()
             };
@@ -194,7 +194,9 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                         SummonerName = part.SummonerName,
                         Assists = part.Assists,
                         Deaths = part.Deaths,
-                        Kills = part.Kills
+                        Kills = part.Kills,
+                        VisionScore = part.VisionScore,
+                        CS = part.TotalMinionsKilled
                     };
                     assists += participantDTO.Assists;
                     kills += participantDTO.Kills;
@@ -216,7 +218,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             {
                 Duration = db.GameDuration,
                 GameStart = db.GameStartTimestamp,
-                MatchID = db.MatchID,
+                MatchID = db.MatchId,
                 Mode = db.GameMode,
                 Teams = new List<TeamDTO>()
             };

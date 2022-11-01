@@ -10,9 +10,9 @@ namespace Oinky.TrainingAppAPI.Repositories
     {
         public async Task<bool> AddMatchAsync(MatchDB matchDB)
         {
-            if (m_matches.ContainsKey(matchDB.MatchID))
+            if (m_matches.ContainsKey(matchDB.MatchId))
                 return false;
-            if (!m_matches.TryAdd(matchDB.MatchID, matchDB))
+            if (!m_matches.TryAdd(matchDB.MatchId, matchDB))
                 await Task.Delay(100);
             return true;
         }

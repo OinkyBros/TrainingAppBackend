@@ -15,7 +15,7 @@
         public int Heralds { get; set; }
         public int IngameID { get; set; }
         public int Inhibitors { get; set; }
-        public Guid TeamID { get; set; }
+        public Guid TeamId { get; set; }
         public int Towers { get; set; }
         public bool Win { get; set; }
         public List<ParticipantDB> Participants { get; set; }

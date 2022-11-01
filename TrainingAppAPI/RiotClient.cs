@@ -50,7 +50,7 @@ namespace Oinky.TrainingAppAPI
 
         public async Task<MatchRiotDTO> FetchMatchAsync(string matchID)
         {
-            HttpResponseMessage result = null;
+            HttpResponseMessage result;
             try
             {
                 var url = "/lol/match/v5/matches/" + matchID;

@@ -10,7 +10,7 @@ namespace Oinky.TrainingAppAPI.Models.DB
         public GameMode GameMode { get; set; }
         public string GameName { get; set; }
         public long GameStartTimestamp { get; set; }
-        public string MatchID { get; set; }
+        public string MatchId { get; set; }
         public List<TeamDB> Teams { get; set; }
     }
 }
