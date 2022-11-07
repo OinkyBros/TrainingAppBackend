@@ -7,5 +7,6 @@
         public string PUUID { get; set; }
         public long RevisionDate { get; set; }
         public int SummonerLevel { get; set; }
+        public long LastUpdate { get; set; }
     }
 }

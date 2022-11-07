@@ -9,8 +9,8 @@ namespace Oinky.TrainingAppAPI.Repositories.Interfaces
 
         Task<bool> AddMatchesAsync(List<MatchDB> matches);
 
-        Task<ExtendedMatchDTO> GetMatchAsync(string matchID);
+        Task<MatchDB> GetMatchAsync(string matchID);
 
-        Task<List<MatchDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to);
+        Task<List<MatchDB>> GetMatchesAsync(int limit, string summonername, long? from, long? to);
     }
 }

@@ -13,14 +13,30 @@ namespace Oinky.TrainingAppAPI.Repositories
             return true;
         }
 
-        public Task<SummonerDB> GetSummonerAsync(string puuid)
+        public async Task<SummonerDB> GetSummonerAsync(string puuid)
         {
-            throw new NotImplementedException();
+            if (!m_summoners.ContainsKey(puuid))
+                return null;
+            SummonerDB summoner = null;
+            while (summoner == null)
+                if (!m_summoners.TryGetValue(puuid, out summoner))
+                    await Task.Delay(100);
+            return summoner;
         }
 
         public Task<List<SummonerDB>> GetSummonersAsync()
         {
             return Task.FromResult(m_summoners.Values.ToList());
+        }
+
+        public async Task<bool> UpdateUserAsync(SummonerDB summoner)
+        {
+            if (!m_summoners.ContainsKey(summoner.PUUID))
+                return false;
+            SummonerDB oldValue = await GetSummonerAsync(summoner.PUUID);
+            while (!m_summoners.TryUpdate(summoner.PUUID, summoner, oldValue))
+                await Task.Delay(100);
+            return true;
         }
 
         private static ConcurrentDictionary<string, SummonerDB> m_summoners = new ConcurrentDictionary<string, SummonerDB>();

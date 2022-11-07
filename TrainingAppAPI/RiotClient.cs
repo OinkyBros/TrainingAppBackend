@@ -73,11 +73,11 @@ namespace Oinky.TrainingAppAPI
             return null;
         }
 
-        public async Task<List<string>> FetchMatchIDsAsync(string puuid, long startTimestamp, int limit = 20)
+        public async Task<List<string>> FetchMatchIDsAsync(string puuid, long startTime, int limit = 20)
         {
             try
             {
-                var url = String.Format("/lol/match/v5/matches/by-puuid/{0}/ids?startTime={1}&count={2}", puuid, startTimestamp, limit);
+                var url = String.Format("/lol/match/v5/matches/by-puuid/{0}/ids?startTime={1}&count={2}", puuid, startTime, limit);
                 var result = await m_httpClient.GetAsync(url);
                 if (result.IsSuccessStatusCode)
                     return await result.Content.ReadFromJsonAsync<List<string>>();
@@ -85,7 +85,7 @@ namespace Oinky.TrainingAppAPI
                 {
                     m_logger.LogWarning("To many requests. Wait for 60 Seconds");
                     await Task.Delay(60 * 1000);
-                    return await FetchMatchIDsAsync(puuid, startTimestamp, limit);
+                    return await FetchMatchIDsAsync(puuid, startTime, limit);
                 }
                 m_logger.LogWarning("Unknown Statuscode in FetchMatchAsync: " + result.StatusCode);
             }

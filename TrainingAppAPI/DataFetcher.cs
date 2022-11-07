@@ -1,5 +1,6 @@
 ﻿using Oinky.TrainingAppAPI.Models.DB;
 using Oinky.TrainingAppAPI.Models.Extensions;
+using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Models.RiotAPI;
 using Oinky.TrainingAppAPI.Services.Interfaces;
 using Oinky.TrainingAppAPI.Utils;
@@ -21,86 +22,126 @@ namespace Oinky.TrainingAppAPI
             //Get Riot Client
             m_riotClient = RiotClient.Instance;
             //Get Registered Summoners
-            List<SummonerDB> summoners = await m_summonerService.GetSummonersAsync();
-            if (summoners == null || summoners.Count == 0)
-            {
-                m_logger.LogInformation("No summoners present. Fill up with initial summoners");
-                await GetInitialSummonersAsync();
-            }
-            summoners = await m_summonerService.GetSummonersAsync();
-            long timestamp = FIRST_TIMESTAMP;
+            List<SummonerDB> summoners = await GetInitialSummonersAsync();
+
             int limit = 100;
             //Catchup for every summoner
+            m_logger.LogInformation("Catchup games");
             foreach (SummonerDB summoner in summoners)
             {
                 m_logger.LogInformation("Get matches for: " + summoner.DisplayName);
-                timestamp = FIRST_TIMESTAMP;
                 bool fetchMore = true;
                 while (fetchMore)
                 {
-                    List<string> matchIDs = await m_riotClient.FetchMatchIDsAsync(summoner.PUUID, timestamp, limit);
+                    List<string> matchIDs = await m_riotClient.FetchMatchIDsAsync(summoner.PUUID, summoner.LastUpdate, limit);
                     foreach (string matchID in matchIDs)
                     {
-                        MatchRiotDTO matchDTO = await m_riotClient.FetchMatchAsync(matchID);
-                        //Check GameMode
-                        while (matchDTO == null)
-                            matchDTO = await m_riotClient.FetchMatchAsync(matchID);
-                        if (MatchExtension.ConvertRiotMode(matchDTO.Info.QueueId) < 0)
-                            continue;
-                        //Check if enough Oinkies
-                        if (matchDTO.Info.Participants.Where(p => MatchExtension.CheckIfOinky(p.SummonerName)).ToList().Count < 3)
-                            continue;
-                        timestamp = Math.Max(timestamp, matchDTO.Info.GameStartTimestamp / 1000);
-                        await m_matchService.AddMatchAsync(matchDTO.ToDBModel());
+                        //Check if match is present
+                        MatchDTO matchDTO = await m_matchService.GetMatchAsync(matchID);
+                        if (matchDTO == null)
+                        {
+                            MatchRiotDTO riotMatch = null;
+                            do
+                            {
+                                riotMatch = await m_riotClient.FetchMatchAsync(matchID);
+                            } while (riotMatch == null);
+                            summoner.LastUpdate = Math.Max(summoner.LastUpdate, riotMatch.Info.GameStartTimestamp / 1000);
+                            //Check Game Mode
+                            if (MatchExtension.ConvertRiotMode(riotMatch.Info.QueueId) < 0)
+                                continue;
+                            //Check if enough Oinkies
+                            if (riotMatch.Info.Participants.Where(p => MatchExtension.CheckIfOinky(p.SummonerName)).ToList().Count < 3)
+                                continue;
+                            //Add match to DB
+                            while (!await m_matchService.AddMatchAsync(riotMatch.ToDBModel()))
+                            {
+                                await Task.Delay(100);
+                            };
+                        }
+                        else
+                            summoner.LastUpdate = Math.Max(summoner.LastUpdate, matchDTO.GameStart);
                     }
-                    fetchMore = matchIDs.Count > limit;
+                    await m_summonerService.UpdateUserAsync(summoner);
+                    fetchMore = limit == matchIDs.Count;
                 }
             }
 
             m_logger.LogInformation("Finished Initialisation");
-            timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(60 * 1000);
                 summoners = await m_summonerService.GetSummonersAsync();
                 foreach (SummonerDB summoner in summoners)
                 {
-                    List<string> matchIDs = await m_riotClient.FetchMatchIDsAsync(summoner.PUUID, timestamp);
+                    m_logger.LogInformation("Update: " + summoner.DisplayName);
+                    List<string> matchIDs = await m_riotClient.FetchMatchIDsAsync(summoner.PUUID, summoner.LastUpdate);
                     foreach (string matchID in matchIDs)
                     {
-                        MatchRiotDTO matchDTO = await m_riotClient.FetchMatchAsync(matchID);
-                        //Check GameMode
-                        if (MatchExtension.ConvertRiotMode(matchDTO.Info.QueueId) < 0)
-                            continue;
-                        //Check if enough Oinkies
-                        if (matchDTO.Info.Participants.Where(p => MatchExtension.CheckIfOinky(p.SummonerName)).ToList().Count < 3)
-                            continue;
-                        timestamp = Math.Max(timestamp, matchDTO.Info.GameStartTimestamp / 1000);
-                        await m_matchService.AddMatchAsync(matchDTO.ToDBModel());
+                        //Check if match is present
+                        MatchDTO matchDTO = await m_matchService.GetMatchAsync(matchID);
+                        if (matchDTO == null)
+                        {
+                            MatchRiotDTO riotMatch = null;
+                            do
+                            {
+                                riotMatch = await m_riotClient.FetchMatchAsync(matchID);
+                            } while (riotMatch == null);
+                            summoner.LastUpdate = Math.Max(summoner.LastUpdate, riotMatch.Info.GameStartTimestamp / 1000);
+                            //Check Game Mode
+                            if (MatchExtension.ConvertRiotMode(riotMatch.Info.QueueId) < 0)
+                                continue;
+                            //Check if enough Oinkies
+                            if (riotMatch.Info.Participants.Where(p => MatchExtension.CheckIfOinky(p.SummonerName)).ToList().Count < 3)
+                                continue;
+                            //Add match to DB
+                            while (!await m_matchService.AddMatchAsync(riotMatch.ToDBModel()))
+                            {
+                                await Task.Delay(100);
+                            };
+                        }
+                        else
+                            summoner.LastUpdate = Math.Max(summoner.LastUpdate, matchDTO.GameStart);
                     }
+                    await m_summonerService.UpdateUserAsync(summoner);
                 }
             }
         }
 
         private async Task<List<SummonerDB>> GetInitialSummonersAsync()
         {
-            List<SummonerDB> result = new List<SummonerDB>();
-            foreach (var summoner in APIUtils.OINKIES)
+            m_logger.LogInformation("Get Initial Summoners");
+            List<SummonerDB> summoners = await m_summonerService.GetSummonersAsync();
+            if (summoners == null)
+                summoners = new List<SummonerDB>();
+
+            //Get initial catalog
+            List<string> oinkyCatalog = APIUtils.OINKIES;
+            SummonerRiotDTO oinkyRiot = null;
+            foreach (string oinky in oinkyCatalog)
             {
-                SummonerRiotDTO dto = await m_riotClient.FetchSummonerAsync(summoner);
-                if (dto == null)
+                if (summoners.Where(s => s.DisplayName == oinky).ToList().Count() != 0)
                     continue;
-                SummonerDB dbModel = dto.ToDBModel();
-                result.Add(dbModel);
-                await m_summonerService.AddSummonerAsync(dbModel);
+                do
+                {
+                    oinkyRiot = await m_riotClient.FetchSummonerAsync(oinky);
+                    if (oinkyRiot == null)
+                        continue;
+                    SummonerDB oinkyDB = oinkyRiot.ToDBModel();
+                    oinkyDB.LastUpdate = FIRST_TIMESTAMP;
+                    if (!await m_summonerService.AddSummonerAsync(oinkyDB))
+                        oinkyRiot = null;
+                    else
+                        summoners.Add(oinkyDB);
+                } while (oinkyRiot == null);
+                oinkyRiot = null;
             }
-            return result;
+            return summoners;
         }
 
         private static readonly long FIRST_TIMESTAMP = 1659304800;
         private IConfiguration m_config;
-        private IMatchService m_matchService;
         private ILogger<DataFetcher> m_logger;
+        private IMatchService m_matchService;
         private RiotClient m_riotClient;
         private ISummonerService m_summonerService;
     }

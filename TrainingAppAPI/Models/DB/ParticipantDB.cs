@@ -137,23 +137,15 @@ namespace Oinky.TrainingAppAPI.Models.DB
         public int Spell3Casts { get; set; }
 
         public int Spell4Casts { get; set; }
-
         public int Summoner1Casts { get; set; }
-
         public int Summoner1Id { get; set; }
-
         public int Summoner2Casts { get; set; }
-
         public int Summoner2Id { get; set; }
-
         public string SummonerId { get; set; }
-
         public int SummonerLevel { get; set; }
-
         public string SummonerName { get; set; }
-
         public bool TeamEarlySurrendered { get; set; }
-
+        public Guid TeamID { get; set; }
         public int TimeCCingOthers { get; set; }
 
         public int TimePlayed { get; set; }

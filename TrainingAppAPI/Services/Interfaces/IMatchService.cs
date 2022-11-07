@@ -5,10 +5,14 @@ namespace Oinky.TrainingAppAPI.Services.Interfaces
 {
     public interface IMatchService
     {
-        Task<List<MatchDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to);
-
-        Task<ExtendedMatchDTO> GetMatchAsync(string matchID);
-
         Task<bool> AddMatchAsync(MatchDB matchDB);
+
+        Task<ExtendedMatchDTO> GetExtendedMatchAsync(string matchID);
+
+        Task<List<ExtendedMatchDTO>> GetExtendedMatchesAsync(int limit, string summonername, long? from, long? to);
+
+        Task<MatchDTO> GetMatchAsync(string matchID);
+
+        Task<List<MatchDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to);
     }
 }

@@ -10,7 +10,10 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             return new SummonerDB()
             {
                 DisplayName = dto.Name,
-                PUUID = dto.PUUID
+                PUUID = dto.PUUID,
+                ProfileIconId = dto.ProfileIconID,
+                RevisionDate = dto.RevisionDate,
+                SummonerLevel = dto.SummonerLevel
             };
         }
     }

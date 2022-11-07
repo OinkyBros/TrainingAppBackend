@@ -22,16 +22,16 @@ namespace Oinky.TrainingAppAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<ExtendedMatchDTO> GetMatchAsync(string matchID)
+        public async Task<MatchDB> GetMatchAsync(string matchID)
         {
             if (!m_matches.ContainsKey(matchID))
                 return null;
             if (!m_matches.TryGetValue(matchID, out MatchDB match))
                 await Task.Delay(100);
-            return match.ToExtendedResultModel();
+            return match;
         }
 
-        public Task<List<MatchDTO>> GetMatchesAsync(int limit, string summonername, long? from, long? to)
+        public Task<List<MatchDB>> GetMatchesAsync(int limit, string summonername, long? from, long? to)
         {
             List<MatchDB> results;
             //Filter for summonername
@@ -52,12 +52,7 @@ namespace Oinky.TrainingAppAPI.Repositories
             //Limit
             results = results.Take(limit).ToList();
 
-            //Convert
-            List<MatchDTO> resultDTOs = new List<MatchDTO>();
-            foreach (MatchDB matchDB in results)
-                resultDTOs.Add(matchDB.ToResultModel());
-
-            return Task.FromResult(resultDTOs);
+            return Task.FromResult(results);
         }
 
         private static ConcurrentDictionary<string, MatchDB> m_matches = new ConcurrentDictionary<string, MatchDB>();

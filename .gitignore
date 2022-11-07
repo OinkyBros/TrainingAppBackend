@@ -351,3 +351,4 @@ MigrationBackup/
 *.editorconfig
 /TrainingAppAPI/Config/settings.json
 /CodeMaid.config
+/TrainingAppAPI/Config/dbsettings.json

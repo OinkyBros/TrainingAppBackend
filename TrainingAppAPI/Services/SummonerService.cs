@@ -26,6 +26,11 @@ namespace Oinky.TrainingAppAPI.Services
             return m_summonerRepo.GetSummonersAsync();
         }
 
+        public Task<bool> UpdateUserAsync(SummonerDB summoner)
+        {
+            return m_summonerRepo.UpdateUserAsync(summoner);
+        }
+
         private ISummonerRepo m_summonerRepo;
     }
 }

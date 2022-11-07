@@ -8,6 +8,33 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
 {
     public static class MatchExtension
     {
+        public static bool CheckIfOinky(string summonerName)
+        {
+            return APIUtils.OINKIES.Contains(summonerName);
+        }
+
+        public static int ConvertRiotMode(int mode)
+        {
+            //See: https://static.developer.riotgames.com/docs/lol/queues.json
+            switch (mode)
+            {
+                case 400:
+                    return (int)GameMode.NORMAL;
+
+                case 420:
+                    return (int)GameMode.DUO;
+
+                case 440:
+                    return (int)GameMode.FLEX;
+
+                case 700:
+                    return (int)GameMode.CLASH;
+
+                default:
+                    return -1;
+            }
+        }
+
         public static MatchDB ToDBModel(this MatchRiotDTO dto)
         {
             List<TeamDB> teams = new List<TeamDB>();
@@ -31,6 +58,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                     TeamId = Guid.NewGuid(),
                     Towers = teamDTO.Objectives.Tower.Kills,
                     Win = teamDTO.Win,
+                    MatchID = dto.Metadata.MatchId,
                     Participants = new List<ParticipantDB>()
                 };
                 foreach (ParticipantRiotDTO participantDTO in dto.Info.Participants.Where(p => p.TeamId == teamDTO.TeamId))
@@ -113,6 +141,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                         SummonerId = participantDTO.SummonerId,
                         SummonerLevel = participantDTO.SummonerLevel,
                         SummonerName = participantDTO.SummonerName,
+                        TeamID = teamDB.TeamId,
                         TeamEarlySurrendered = participantDTO.TeamEarlySurrendered,
                         TimeCCingOthers = participantDTO.TimeCCingOthers,
                         TimePlayed = participantDTO.TimePlayed,
@@ -181,6 +210,8 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                 int assists = 0;
                 int kills = 0;
                 int deaths = 0;
+                int gold = 0;
+                int damage = 0;
                 foreach (ParticipantDB part in team.Participants)
                 {
                     ExtendedParticipantDTO participantDTO = new ExtendedParticipantDTO()
@@ -196,16 +227,119 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                         Deaths = part.Deaths,
                         Kills = part.Kills,
                         VisionScore = part.VisionScore,
-                        CS = part.TotalMinionsKilled
+                        CS = part.TotalMinionsKilled + part.NeutralMinionsKilled,
+                        BaronKills = part.BaronKills,
+                        BasicPings = part.BasicPings,
+                        BountyLevel = part.BountyLevel,
+                        ChampExperience = part.ChampExperience,
+                        ChampionId = part.ChampionId,
+                        ChampionName = part.ChampionName,
+                        ChampionTransform = part.ChampionTransform,
+                        ChampLevel = part.ChampLevel,
+                        ConsumablesPurchased = part.ConsumablesPurchased,
+                        DamageDealtToBuildings = part.DamageDealtToBuildings,
+                        DamageDealtToObjectives = part.DamageDealtToObjectives,
+                        DamageDealtToTurrets = part.DamageDealtToTurrets,
+                        DamageSelfMitigated = part.DamageSelfMitigated,
+                        DetectorWardsPlaced = part.DetectorWardsPlaced,
+                        DoubleKills = part.DoubleKills,
+                        DragonKills = part.DragonKills,
+                        EligibleForProgression = part.EligibleForProgression,
+                        FirstBloodAssist = part.FirstBloodAssist,
+                        FirstBloodKill = part.FirstBloodKill,
+                        FirstTowerAssist = part.FirstTowerAssist,
+                        FirstTowerKill = part.FirstTowerKill,
+                        GameEndedInEarlySurrender = part.GameEndedInEarlySurrender,
+                        GameEndedInSurrender = part.GameEndedInSurrender,
+                        GoldEarned = part.GoldEarned,
+                        GoldSpent = part.GoldSpent,
+                        InhibitorKills = part.InhibitorKills,
+                        InhibitorsLost = part.InhibitorsLost,
+                        InhibitorTakedowns = part.InhibitorTakedowns,
+                        Item0 = part.Item0,
+                        Item1 = part.Item1,
+                        Item2 = part.Item2,
+                        Item3 = part.Item3,
+                        Item4 = part.Item4,
+                        Item5 = part.Item5,
+                        Item6 = part.Item6,
+                        ItemsPurchased = part.ItemsPurchased,
+                        KillingSprees = part.KillingSprees,
+                        LargestCriticalStrike = part.LargestCriticalStrike,
+                        LargestKillingSpree = part.LargestKillingSpree,
+                        LargestMultiKill = part.LargestMultiKill,
+                        LongestTimeSpentLiving = part.LongestTimeSpentLiving,
+                        MagicDamageDealt = part.MagicDamageDealt,
+                        MagicDamageDealtToChampions = part.MagicDamageDealtToChampions,
+                        MagicDamageTaken = part.MagicDamageTaken,
+                        NeutralMinionsKilled = part.NeutralMinionsKilled,
+                        NexusKills = part.NexusKills,
+                        NexusLost = part.NexusLost,
+                        NexusTakedowns = part.NexusTakedowns,
+                        ObjectivesStolen = part.ObjectivesStolen,
+                        ObjectivesStolenAssists = part.ObjectivesStolenAssists,
+                        ParticipantId = part.ParticipantId,
+                        PentaKills = part.PentaKills,
+                        PhysicalDamageDealt = part.PhysicalDamageDealt,
+                        PhysicalDamageDealtToChampions = part.PhysicalDamageDealtToChampions,
+                        PhysicalDamageTaken = part.PhysicalDamageTaken,
+                        ProfileIcon = part.ProfileIcon,
+                        Puuid = part.Puuid,
+                        QuadraKills = part.QuadraKills,
+                        RiotIdName = part.RiotIdName,
+                        RiotIdTagline = part.RiotIdTagline,
+                        SightWardsBoughtInGame = part.SightWardsBoughtInGame,
+                        Spell1Casts = part.Spell1Casts,
+                        Spell2Casts = part.Spell2Casts,
+                        Spell3Casts = part.Spell3Casts,
+                        Spell4Casts = part.Spell4Casts,
+                        Summoner1Casts = part.Summoner1Casts,
+                        Summoner1Id = part.Summoner1Id,
+                        Summoner2Casts = part.Summoner2Casts,
+                        Summoner2Id = part.Summoner2Id,
+                        SummonerLevel = part.SummonerLevel,
+                        TeamEarlySurrendered = part.TeamEarlySurrendered,
+                        TimeCCingOthers = part.TimeCCingOthers,
+                        TimePlayed = part.TimePlayed,
+                        TotalDamageDealt = part.TotalDamageDealt,
+                        TotalDamageDealtToChampions = part.TotalDamageDealtToChampions,
+                        TotalDamageShieldedOnTeammates = part.TotalDamageShieldedOnTeammates,
+                        TotalDamageTaken = part.TotalDamageTaken,
+                        TotalHeal = part.TotalHeal,
+                        TotalHealsOnTeammates = part.TotalHealsOnTeammates,
+                        TotalMinionsKilled = part.TotalMinionsKilled,
+                        TotalTimeCCDealt = part.TotalTimeCCDealt,
+                        TotalTimeSpentDead = part.TotalTimeSpentDead,
+                        TotalUnitsHealed = part.TotalUnitsHealed,
+                        TowerKills = part.TowerKills,
+                        TowersLost = part.TowersLost,
+                        TowerTakedowns = part.TowerTakedowns,
+                        TripleKills = part.TripleKills,
+                        TrueDamageDealt = part.TrueDamageDealt,
+                        TrueDamageDealtToChampions = part.TrueDamageDealtToChampions,
+                        TrueDamageTaken = part.TrueDamageTaken,
+                        UnrealKills = part.UnrealKills,
+                        VisionWardsBoughtInGame = part.VisionWardsBoughtInGame,
+                        WardsKilled = part.WardsKilled,
+                        WardsPlaced = part.WardsPlaced
                     };
                     assists += participantDTO.Assists;
                     kills += participantDTO.Kills;
                     deaths += participantDTO.Deaths;
+                    damage += participantDTO.TotalDamageDealtToChampions;
+                    gold += participantDTO.GoldEarned;
                     teamDTO.Participants.Add(participantDTO);
                 }
+                teamDTO.GoldEarned = gold;
+                teamDTO.Damage = damage;
                 teamDTO.Assists = assists;
                 teamDTO.Kills = kills;
                 teamDTO.Deaths = deaths;
+                foreach (ExtendedParticipantDTO participant in teamDTO.Participants)
+                {
+                    participant.GoldShare = (double)participant.GoldEarned / gold;
+                    participant.DamageShare = (double)participant.TotalDamageDealtToChampions / damage;
+                }
                 result.Teams.Add(teamDTO);
             }
 
@@ -262,7 +396,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             //Get Duration
             resultMatch.Duration = (int)((dto.Info.GameEndTimestamp - dto.Info.GameStartTimestamp) / 1000);
             //Start Time
-            resultMatch.GameStart = dto.Info.GameStartTimestamp;
+            resultMatch.GameStart = dto.Info.GameStartTimestamp / 1000;
             //ID
             resultMatch.MatchID = dto.Metadata.MatchId;
             //Teams
@@ -291,33 +425,6 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                 resultMatch.Teams.Add(resultTeam);
             }
             return resultMatch;
-        }
-
-        public static bool CheckIfOinky(string summonerName)
-        {
-            return APIUtils.OINKIES.Contains(summonerName);
-        }
-
-        public static int ConvertRiotMode(int mode)
-        {
-            //See: https://static.developer.riotgames.com/docs/lol/queues.json
-            switch (mode)
-            {
-                case 400:
-                    return (int)GameMode.NORMAL;
-
-                case 420:
-                    return (int)GameMode.DUO;
-
-                case 440:
-                    return (int)GameMode.FLEX;
-
-                case 700:
-                    return (int)GameMode.CLASH;
-
-                default:
-                    return -1;
-            }
         }
 
         private static Role ConvertRole(string teamPosition)

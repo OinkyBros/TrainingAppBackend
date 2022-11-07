@@ -7,8 +7,14 @@ namespace Oinky.TrainingAppAPI.Models.Result
         [JsonPropertyName("Assists")]
         public int Assists { get; set; }
 
+        [JsonPropertyName("Damage")]
+        public int Damage { get; set; }
+
         [JsonPropertyName("Deaths")]
         public int Deaths { get; set; }
+
+        [JsonPropertyName("GoldEarned")]
+        public int GoldEarned { get; set; }
 
         [JsonPropertyName("Inhibitors")]
         public int Inhibitors { get; set; }

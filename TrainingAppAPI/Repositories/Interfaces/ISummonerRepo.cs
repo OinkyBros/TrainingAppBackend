@@ -7,5 +7,6 @@ namespace Oinky.TrainingAppAPI.Repositories.Interfaces
         Task<bool> AddSummonerAsync(SummonerDB summoner);
         Task<List<SummonerDB>> GetSummonersAsync();
         Task<SummonerDB> GetSummonerAsync(string puuid);
+        Task<bool> UpdateUserAsync(SummonerDB summoner);
     }
 }

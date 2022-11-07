@@ -44,7 +44,7 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match with the given ID found")]
         public async Task<IActionResult> GetMatch(string matchID)
         {
-            ExtendedMatchDTO match = await m_matchesService.GetMatchAsync(matchID);
+            ExtendedMatchDTO match = await m_matchesService.GetExtendedMatchAsync(matchID);
             return match != null ? Ok(match) : NotFound();
         }
 

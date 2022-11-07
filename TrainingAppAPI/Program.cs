@@ -5,6 +5,7 @@ using Oinky.TrainingAppAPI;
 using Oinky.TrainingAppAPI.Models.Configuration;
 using Oinky.TrainingAppAPI.Repositories;
 using Oinky.TrainingAppAPI.Repositories.Interfaces;
+using Oinky.TrainingAppAPI.Repositories.MSSQL;
 using Oinky.TrainingAppAPI.Services;
 using Oinky.TrainingAppAPI.Services.Interfaces;
 using System.Reflection;
@@ -20,7 +21,7 @@ ConfigurationManager configuration = builder.Configuration;
 configuration.SetBasePath(Path.Combine(environment.ContentRootPath, "Config"));
 //Add Configurations
 configuration.AddJsonFile("settings.json", optional: false, reloadOnChange: true); //Main settings
-//configuration.AddJsonFile("dbsettings.json", optional: false, reloadOnChange: true); //DB settings
+configuration.AddJsonFile("dbsettings.json", optional: false, reloadOnChange: true); //DB settings
 //configuration.AddJsonFile("logsettings.json", optional: true, reloadOnChange: false); //Logger settings
 
 builder.Services.AddControllers();
@@ -42,11 +43,10 @@ builder.Logging.AddConsole();
 
 //Add ServiceLayer
 //Repos
-builder.Services.AddTransient<ISummonerRepo, SummonerFakeRepo>();
-builder.Services.AddTransient<IMatchRepo, MatchFakeRepo>();
+builder.Services.AddTransient<ISummonerRepo, SummonerMSSQLRepo>();
+builder.Services.AddTransient<IMatchRepo, MatchMSSQLRepo>();
 builder.Services.AddTransient<IGoalRepo, GoalFakeRepo>();
 //Services
-//builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<ISummonerService, SummonerService>();
 builder.Services.AddTransient<IMatchService, MatchService>();
 builder.Services.AddTransient<IGoalService, GoalService>();
