@@ -198,30 +198,31 @@ namespace Oinky.TrainingAppAPI.Repositories.MSSQL
                 to = long.MaxValue;
             try
             {
-                string sql = @"SELECT TOP(@Limit) * FROM [dbo].[Match] WHERE [GameStartTimestamp]>=@from AND [GameStartTimestamp]<@to ORDER BY [GameStartTimestamp] DESC";
+                string sql = null;
+                if (summonername == null)
+                    sql = @"SELECT TOP (@Limit) MatchID FROM [dbo].[Match]
+                            WHERE [GameStartTimestamp]>=@from AND [GameStartTimestamp]<@to ORDER BY [GameStartTimestamp] DESC";
+                else
+                    sql = @"SELECT m.[MatchID] FROM
+                                (SELECT DISTINCT  TOP(@Limit) m.[MatchID], m.[GameStartTimestamp] FROM [dbo].[Match] m
+                                    INNER JOIN
+                                        (SELECT [MatchID] FROM [dbo].Team t
+                                            INNER JOIN
+                                                (SELECT [TeamID] FROM [dbo].[Participant] WHERE [SummonerName]=@SummonerName) p ON p.TeamID = t.TeamID
+                                        ) t ON t.MatchID = m.MatchID
+                                    WHERE m.[GameStartTimestamp]>=@from AND m.[GameStartTimestamp]<@to ORDER BY m.[GameStartTimestamp] DESC
+                                    ) m;";
+                //string sql = @"SELECT TOP(@Limit) * FROM [dbo].[Match] WHERE [GameStartTimestamp]>=@from AND [GameStartTimestamp]<@to ORDER BY [GameStartTimestamp] DESC";
                 using (SqlConnection connection = new SqlConnection(m_connectionString))
                 {
                     connection.Open();
-                    List<MatchDB> matches = (await connection.QueryAsync<MatchDB>(sql, new { Limit = limit, From = from, to = to })).ToList();
+                    //List<MatchDB> matches = (await connection.QueryAsync<MatchDB>(sql, new { Limit = limit, From = from, to = to })).ToList();
+                    List<string> matchIDs = (await connection.QueryAsync<string>(sql, new { Limit = limit, From = from, to = to, SummonerName = summonername })).ToList();
                     List<MatchDB> resultMatches = new List<MatchDB>();
-                    foreach (var match in matches)
+                    foreach (var matchID in matchIDs)
                     {
-                        var completeMatch = await GetMatchAsync(match.MatchId); 
-                        if (summonername != null) //TODO FIX ME
-                        {
-                            bool flag = false;
-                            foreach (var team in match.Teams)
-                            {
-                                flag = team.Participants.Select(p => p.SummonerName == summonername).ToList().Count > 0;
-                                if (flag)
-                                    break;
-                            }
-                            if (!flag)
-                                continue;
-                        }
+                        var completeMatch = await GetMatchAsync(matchID);
                         resultMatches.Add(completeMatch);
-                        if (resultMatches.Count >= limit)
-                            break;
                     }
                     return resultMatches;
                 }
