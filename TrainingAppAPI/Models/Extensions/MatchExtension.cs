@@ -35,6 +35,32 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
             }
         }
 
+        public static ParticipantDB GetParticipantByPUUID(this MatchDB matchDB, string puuid)
+        {
+            if (matchDB == null)
+                return null;
+            foreach (var team in matchDB.Teams)
+            {
+                foreach (var participant in team.Participants)
+                    if (participant.Puuid == puuid)
+                        return participant;
+            }
+            return null;
+        }
+
+        public static TeamDB GetTeamByPUUID(this MatchDB matchDB, string puuid)
+        {
+            if (matchDB == null)
+                return null;
+            foreach (var team in matchDB.Teams)
+            {
+                foreach (var participant in team.Participants)
+                    if (participant.Puuid == puuid)
+                        return team;
+            }
+            return null;
+        }
+
         public static MatchDB ToDBModel(this MatchRiotDTO dto)
         {
             List<TeamDB> teams = new List<TeamDB>();

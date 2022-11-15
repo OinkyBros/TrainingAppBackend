@@ -1,25 +1,33 @@
-﻿using System.Text.RegularExpressions;
+﻿using Oinky.TrainingAppAPI.Models.DB;
+using System.Text.RegularExpressions;
 
 namespace Oinky.TrainingAppAPI.Utils
 {
-    public class MathExpressionParser
+    public class MathEquationParser
     {
         private enum TokenType
         {
             Number,
-            Variable,
+            Parameter,
             Operator,
             Parenthesis,
             Invalid
         }
 
-        public bool Calculate(string expression, out double result)
+        public bool Calculate(string expression, MatchDB match, string puuid, out double result)
         {
+            result = Double.MinValue;
+            if (match == null)
+                return false;
             try
             {
                 var tokens = Tokenize(expression);
+                if (tokens == null)
+                    return false;
                 tokens = ConvertToRPN(tokens);
-                result = Calculate(tokens);
+                if (tokens == null)
+                    return false;
+                result = Calculate(tokens, match, puuid);
                 return true;
             }
             catch (Exception ex)
@@ -30,13 +38,23 @@ namespace Oinky.TrainingAppAPI.Utils
             }
         }
 
-        private double Calculate(List<Token> rpn)
+        private double Calculate(List<Token> rpn, MatchDB match, string puuid)
         {
             Stack<double> output = new Stack<double>();
             foreach (Token token in rpn)
             {
                 switch (token.TokenType)
                 {
+                    case TokenType.Parameter:
+                        if (token is ParameterToken parameterToken)
+                            if (EquationParameterUtils.TryGetParameterValue(parameterToken.Category, parameterToken.Parameter, match, puuid, out double result))
+                                output.Push(result);
+                            else
+                                throw new ArgumentException("The given parameter was not found");
+                        else
+                            throw new ArgumentException("The token type is parameter, but its not a parameter token");
+                        break;
+
                     case TokenType.Number:
                         output.Push(double.Parse(token.Value));
                         break;
@@ -79,10 +97,13 @@ namespace Oinky.TrainingAppAPI.Utils
         {
             if (m_availableOperators.ContainsKey(str))
                 return TokenType.Operator;
-            if (double.TryParse(str, out double value))
+            if (double.TryParse(str, out _))
                 return TokenType.Number;
             if (m_parenthesis.Contains(str))
                 return TokenType.Parenthesis;
+            if (str.StartsWith(EquationParameterUtils.STARTING_CHAR) && str.EndsWith(EquationParameterUtils.ENDING_CHAR))
+                return TokenType.Parameter;
+
             return TokenType.Invalid;
         }
 
@@ -95,6 +116,7 @@ namespace Oinky.TrainingAppAPI.Utils
                 switch (token.TokenType)
                 {
                     case TokenType.Number:
+                    case TokenType.Parameter:
                         outputQueue.Enqueue(token);
                         break;
 
@@ -141,8 +163,6 @@ namespace Oinky.TrainingAppAPI.Utils
                 outputQueue.Enqueue(operatorStack.Pop());
 
             var output = outputQueue.ToList();
-            foreach (var item in output)
-                Console.Write(item.Value + " ");
 
             return output;
         }
@@ -150,29 +170,28 @@ namespace Oinky.TrainingAppAPI.Utils
         private List<Token> Tokenize(string expression)
         {
             List<Token> tokens = new List<Token>();
-            string[] formulaSplit = Regex.Split(expression, @"([\+\-*\/()\^{}])").Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            string[] formulaSplit = Regex.Split(expression, @"([\+\-*\/()\^])").Where(x => !string.IsNullOrEmpty(x)).ToArray();
             foreach (string str in formulaSplit)
             {
                 TokenType type = CheckType(str);
-                tokens.Add(new Token(tokenType: type, value: str));
-                Console.WriteLine("Value: " + str + "; TokenType: " + type);
+                switch (type)
+                {
+                    case TokenType.Invalid:
+                        return null;
+
+                    case TokenType.Parameter:
+                        if (EquationParameterUtils.ValidateParameter(str, out ParameterCategory category, out Parameter parameter))
+                            tokens.Add(new ParameterToken(str, category, parameter));
+                        else return null;
+                        break;
+
+                    default:
+                        tokens.Add(new Token(tokenType: type, value: str));
+                        break;
+                }
             }
             return tokens;
         }
-
-        private static Dictionary<string, Operator> m_availableOperators = new Dictionary<string, Operator>()
-            {
-                {"+" , new Operator("+", 2) },
-                {"-" , new Operator("-", 2) },
-                {"*" , new Operator("*", 3) },
-                {"/" , new Operator("/", 3) },
-                {"^" , new Operator("^", 4, true) }
-            };
-
-        private List<string> m_parenthesis = new List<string>()
-            {
-                "(", ")", "{", "}"
-            };
 
         private class Operator
         {
@@ -188,6 +207,18 @@ namespace Oinky.TrainingAppAPI.Utils
             }
         }
 
+        private class ParameterToken : Token
+        {
+            public ParameterCategory Category { get; }
+            public Parameter Parameter { get; }
+
+            public ParameterToken(string value, ParameterCategory category, Parameter parameter) : base(TokenType.Parameter, value)
+            {
+                Category = category;
+                Parameter = parameter;
+            }
+        }
+
         private class Token
         {
             public TokenType TokenType { get; }
@@ -199,5 +230,19 @@ namespace Oinky.TrainingAppAPI.Utils
                 Value = value;
             }
         }
+
+        private static Dictionary<string, Operator> m_availableOperators = new Dictionary<string, Operator>()
+            {
+                {"+" , new Operator("+", 2) },
+                {"-" , new Operator("-", 2) },
+                {"*" , new Operator("*", 3) },
+                {"/" , new Operator("/", 3) },
+                {"^" , new Operator("^", 4, true) }
+            };
+
+        private List<string> m_parenthesis = new List<string>()
+            {
+                "(", ")"
+            };
     }
 }

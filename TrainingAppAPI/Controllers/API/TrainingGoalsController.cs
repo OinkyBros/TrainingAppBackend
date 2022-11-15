@@ -21,7 +21,6 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         /// Get all available goals
         /// </summary>
         /// <returns></returns>
-        /// <remarks>WORK IN PROGRESS</remarks>
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(GoalOverviewDTO))]
         public async Task<IActionResult> GetGoals()
@@ -35,10 +34,11 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         /// </summary>
         /// <param name="goalID">ID of the goal to check</param>
         /// <param name="matchID">ID of the match, which should be analysed</param>
-        /// <returns></returns>
-        /// <remarks>WORK IN PROGRESS</remarks>
+        /// <returns>Result of the training goals for the specific match</returns>
         [HttpGet]
         [Route("{goalID}/{matchID}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<GoalResultDTO>))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match or goal with the given ID found")]
         public async Task<IActionResult> GetGoalResult(string goalID, string matchID)
         {
             if (!Guid.TryParse(goalID, out Guid goalGUID))
@@ -46,11 +46,10 @@ namespace Oinky.TrainingAppAPI.Controllers.API
             bool exists = await m_goalService.CheckIfGoalExistsAsync(goalGUID);
             if (!exists)
                 return NotFound("Goal not found");
-            //exists = await m_goalService.CheckIfMatchExists(matchID);
-            //if (!exists)
-            //    return NotFound("Match not found");
-
-            return Ok();
+            var result = await m_goalService.CalculateGoal(goalGUID, matchID);
+            if (result == null)
+                return NotFound();
+            return Ok(result);
         }
 
         private IGoalService m_goalService;

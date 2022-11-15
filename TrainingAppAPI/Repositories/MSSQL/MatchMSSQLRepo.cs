@@ -212,11 +212,9 @@ namespace Oinky.TrainingAppAPI.Repositories.MSSQL
                                         ) t ON t.MatchID = m.MatchID
                                     WHERE m.[GameStartTimestamp]>=@from AND m.[GameStartTimestamp]<@to ORDER BY m.[GameStartTimestamp] DESC
                                     ) m;";
-                //string sql = @"SELECT TOP(@Limit) * FROM [dbo].[Match] WHERE [GameStartTimestamp]>=@from AND [GameStartTimestamp]<@to ORDER BY [GameStartTimestamp] DESC";
                 using (SqlConnection connection = new SqlConnection(m_connectionString))
                 {
                     connection.Open();
-                    //List<MatchDB> matches = (await connection.QueryAsync<MatchDB>(sql, new { Limit = limit, From = from, to = to })).ToList();
                     List<string> matchIDs = (await connection.QueryAsync<string>(sql, new { Limit = limit, From = from, to = to, SummonerName = summonername })).ToList();
                     List<MatchDB> resultMatches = new List<MatchDB>();
                     foreach (var matchID in matchIDs)
