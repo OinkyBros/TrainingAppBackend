@@ -155,11 +155,6 @@ namespace Oinky.TrainingAppAPI.Repositories.MSSQL
             }
         }
 
-        public Task<bool> AddMatchesAsync(List<MatchDB> matches)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<MatchDB> GetMatchAsync(string matchID)
         {
             try

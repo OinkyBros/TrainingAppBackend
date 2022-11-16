@@ -4,9 +4,9 @@ namespace Oinky.TrainingAppAPI.Services.Interfaces
 {
     public interface IGoalService
     {
-        Task<GoalResultDTO> CalculateGoal(Guid goalGUID, string matchID);
+        Task<GoalResultDTO> CalculateGoal(Guid goalID, string matchID);
 
-        Task<bool> CheckIfGoalExistsAsync(Guid goalGUID);
+        Task<bool> CheckIfGoalExistsAsync(Guid goalID);
 
         Task<GoalOverviewDTO> GetOverviewAsync();
     }

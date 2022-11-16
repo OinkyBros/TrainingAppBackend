@@ -6,10 +6,10 @@ namespace Oinky.TrainingAppAPI.Repositories
 {
     public class GoalFakeRepo : IGoalRepo
     {
-        public Task<GoalDB> GetGoalAsync(Guid goalGUID)
+        public Task<GoalDB> GetGoalAsync(Guid goalID)
         {
             GoalDB goalDB = null;
-            if(m_goals.TryGetValue(goalGUID, out goalDB))
+            if(m_goals.TryGetValue(goalID, out goalDB))
                 return Task.FromResult(goalDB);
             return null;
         }

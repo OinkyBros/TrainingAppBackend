@@ -16,10 +16,10 @@ namespace Oinky.TrainingAppAPI.Services
             m_matchRepo = matchRepo;
         }
 
-        public async Task<GoalResultDTO> CalculateGoal(Guid goalGUID, string matchID)
+        public async Task<GoalResultDTO> CalculateGoal(Guid goalID, string matchID)
         {
             MatchDB match = await m_matchRepo.GetMatchAsync(matchID);
-            GoalDB goal = await m_goalRepo.GetGoalAsync(goalGUID);
+            GoalDB goal = await m_goalRepo.GetGoalAsync(goalID);
             if (match == null || goal == null)
                 return null;
 
@@ -93,14 +93,16 @@ namespace Oinky.TrainingAppAPI.Services
         public async Task<GoalOverviewDTO> GetOverviewAsync()
         {
             GoalOverviewDTO overview = new GoalOverviewDTO();
-            foreach (var goal in await m_goalRepo.GetOverviewAsync())
-            {
-                overview.DefaultGoals.Add(new SingleGoalDTO()
+            List<GoalDB> goals = await m_goalRepo.GetOverviewAsync();
+            if (goals != null)
+                foreach (var goal in goals)
                 {
-                    DisplayName = goal.DisplayName,
-                    GoalID = goal.GoalID
-                });
-            }
+                    overview.DefaultGoals.Add(new SingleGoalDTO()
+                    {
+                        DisplayName = goal.DisplayName,
+                        GoalID = goal.GoalID
+                    });
+                }
             return overview;
         }
 

@@ -6,6 +6,6 @@ namespace Oinky.TrainingAppAPI.Repositories.Interfaces
     public interface IGoalRepo
     {
         Task<List<GoalDB>> GetOverviewAsync();
-        Task<GoalDB> GetGoalAsync(Guid goalGUID);
+        Task<GoalDB> GetGoalAsync(Guid goalID);
     }
 }

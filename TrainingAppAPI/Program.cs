@@ -45,7 +45,7 @@ builder.Logging.AddConsole();
 //Repos
 builder.Services.AddTransient<ISummonerRepo, SummonerMSSQLRepo>();
 builder.Services.AddTransient<IMatchRepo, MatchMSSQLRepo>();
-builder.Services.AddTransient<IGoalRepo, GoalFakeRepo>();
+builder.Services.AddTransient<IGoalRepo, GoalMSSQLRepo>();
 //Services
 builder.Services.AddTransient<ISummonerService, SummonerService>();
 builder.Services.AddTransient<IMatchService, MatchService>();
