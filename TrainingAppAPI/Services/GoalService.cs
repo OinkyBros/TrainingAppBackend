@@ -67,10 +67,6 @@ namespace Oinky.TrainingAppAPI.Services
                         return null;
                     }
 
-                    Console.WriteLine("VisionScore for: " + participant.SummonerName);
-                    Console.WriteLine("Role: " + participant.Role);
-                    Console.WriteLine("Result: " + result);
-
                     result.Participants.Add(new ParticipantGoalResult()
                     {
                         GoalResult = goalResult,
