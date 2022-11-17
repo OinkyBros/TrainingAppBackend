@@ -1,4 +1,5 @@
 ﻿using Oinky.TrainingAppAPI.Models.DB;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Oinky.TrainingAppAPI.Utils
@@ -56,7 +57,7 @@ namespace Oinky.TrainingAppAPI.Utils
                         break;
 
                     case TokenType.Number:
-                        output.Push(double.Parse(token.Value));
+                        output.Push(double.Parse(token.Value, CultureInfo.InvariantCulture));
                         break;
 
                     case TokenType.Operator:
