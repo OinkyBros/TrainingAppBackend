@@ -1,6 +1,8 @@
-﻿using Oinky.TrainingAppAPI.Models.DB;
+﻿using Microsoft.AspNetCore.Mvc;
+using Oinky.TrainingAppAPI.Models.DB;
 using Oinky.TrainingAppAPI.Models.Enums;
 using Oinky.TrainingAppAPI.Models.Extensions;
+using Oinky.TrainingAppAPI.Models.Request;
 using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Repositories.Interfaces;
 using Oinky.TrainingAppAPI.Services.Interfaces;
@@ -16,7 +18,7 @@ namespace Oinky.TrainingAppAPI.Services
             m_matchRepo = matchRepo;
         }
 
-        public async Task<GoalResultDTO> CalculateGoal(Guid goalID, string matchID)
+        public async Task<GoalResultDTO> CalculateGoalAsync(Guid goalID, string matchID)
         {
             MatchDB match = await m_matchRepo.GetMatchAsync(matchID);
             GoalDB goal = await m_goalRepo.GetGoalAsync(goalID);
@@ -100,6 +102,19 @@ namespace Oinky.TrainingAppAPI.Services
                     });
                 }
             return overview;
+        }
+
+        public async Task<IActionResult> AddGoalAsync(AddGoalRequest request)
+        {
+            //Convert
+            GoalDB goalDB = request.ConvertToDB();
+            if(goalDB == null)
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            //Add
+            if (await m_goalRepo.AddGoalAsync(goalDB))
+                return new OkResult();
+            else
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
         }
 
         private IGoalRepo m_goalRepo;

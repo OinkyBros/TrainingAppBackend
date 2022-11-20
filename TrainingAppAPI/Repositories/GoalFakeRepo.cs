@@ -19,6 +19,12 @@ namespace Oinky.TrainingAppAPI.Repositories
             return Task.FromResult(m_goals.Values.ToList());
         }
 
+        public Task<bool> AddGoalAsync(GoalDB goalDB)
+        {
+            m_goals.Add(goalDB.GoalID, goalDB);
+            return Task.FromResult(true);
+        }
+
         private static Dictionary<Guid, GoalDB> m_goals = new Dictionary<Guid, GoalDB>()
         {
             {

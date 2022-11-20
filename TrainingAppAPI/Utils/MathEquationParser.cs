@@ -168,6 +168,13 @@ namespace Oinky.TrainingAppAPI.Utils
             return output;
         }
 
+        public bool ValidateExpression(string expression)
+        {
+            if (expression == null)
+                return false;
+            return Tokenize(expression) != null;
+        }
+
         private List<Token> Tokenize(string expression)
         {
             List<Token> tokens = new List<Token>();

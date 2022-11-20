@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Oinky.TrainingAppAPI.Models.Request;
 using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Services.Interfaces;
 using Oinky.TrainingAppAPI.Utils;
@@ -7,7 +8,6 @@ using System.Net;
 
 namespace Oinky.TrainingAppAPI.Controllers.API
 {
-
     [Route("api/v{version:apiVersion}/goals")]
     [ApiController]
     [ApiVersion("1.0")]
@@ -18,16 +18,12 @@ namespace Oinky.TrainingAppAPI.Controllers.API
             m_goalService = goalService;
         }
 
-        /// <summary>
-        /// Get all available goals
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(GoalOverviewDTO))]
-        public async Task<IActionResult> GetGoals()
+        [HttpPost]
+        [SwaggerResponse((int) HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Description = "The goal couldnt be added, because the goal was either invalid or not present")]
+        public async Task<IActionResult> AddGoal([FromBody] AddGoalRequest requestModel)
         {
-            var goals = await m_goalService.GetOverviewAsync();
-            return goals != null ? Ok(goals) : NotFound();
+            return await m_goalService.AddGoalAsync(requestModel);
         }
 
         /// <summary>
@@ -47,10 +43,22 @@ namespace Oinky.TrainingAppAPI.Controllers.API
             bool exists = await m_goalService.CheckIfGoalExistsAsync(goalGUID);
             if (!exists)
                 return NotFound("Goal not found");
-            var result = await m_goalService.CalculateGoal(goalGUID, matchID);
+            var result = await m_goalService.CalculateGoalAsync(goalGUID, matchID);
             if (result == null)
                 return NotFound();
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get all available goals
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(GoalOverviewDTO))]
+        public async Task<IActionResult> GetGoals()
+        {
+            var goals = await m_goalService.GetOverviewAsync();
+            return goals != null ? Ok(goals) : NotFound();
         }
 
         /// <summary>
