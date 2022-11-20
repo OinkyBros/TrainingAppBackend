@@ -181,7 +181,7 @@ namespace Oinky.TrainingAppAPI.Utils
                         return null;
 
                     case TokenType.Parameter:
-                        if (EquationParameterUtils.ValidateParameter(str, out ParameterCategory category, out Parameter parameter))
+                        if (EquationParameterUtils.ValidateParameter(str, out ParameterCategory category, out string parameter))
                             tokens.Add(new ParameterToken(str, category, parameter));
                         else return null;
                         break;
@@ -211,9 +211,9 @@ namespace Oinky.TrainingAppAPI.Utils
         private class ParameterToken : Token
         {
             public ParameterCategory Category { get; }
-            public Parameter Parameter { get; }
+            public string Parameter { get; }
 
-            public ParameterToken(string value, ParameterCategory category, Parameter parameter) : base(TokenType.Parameter, value)
+            public ParameterToken(string value, ParameterCategory category, string parameter) : base(TokenType.Parameter, value)
             {
                 Category = category;
                 Parameter = parameter;

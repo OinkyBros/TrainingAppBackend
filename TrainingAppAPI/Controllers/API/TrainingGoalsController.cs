@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Services.Interfaces;
+using Oinky.TrainingAppAPI.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
@@ -30,7 +31,7 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         }
 
         /// <summary>
-        /// 
+        /// Get the goal result of a specific match.
         /// </summary>
         /// <param name="goalID">ID of the goal to check</param>
         /// <param name="matchID">ID of the match, which should be analysed</param>
@@ -50,6 +51,18 @@ namespace Oinky.TrainingAppAPI.Controllers.API
             if (result == null)
                 return NotFound();
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get a list of all supported parameters
+        /// </summary>
+        /// <returns>Result of the training goals for the specific match</returns>
+        [HttpGet]
+        [Route("parameters")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(Dictionary<ParameterCategory, List<string>>))]
+        public IActionResult GetParameters()
+        {
+            return Ok(EquationParameterUtils.Parameters);
         }
 
         private IGoalService m_goalService;

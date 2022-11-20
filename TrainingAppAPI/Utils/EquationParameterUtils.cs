@@ -1,16 +1,10 @@
 ﻿using Oinky.TrainingAppAPI.Models.DB;
 using Oinky.TrainingAppAPI.Models.Extensions;
+using System.Globalization;
+using System.Reflection;
 
 namespace Oinky.TrainingAppAPI.Utils
 {
-    public enum Parameter
-    {
-        INVALID = -1,
-        VISIONSCORE,
-        CS,
-        DURATION
-    }
-
     public enum ParameterCategory
     {
         INVALID = -1,
@@ -21,62 +15,104 @@ namespace Oinky.TrainingAppAPI.Utils
 
     public class EquationParameterUtils
     {
-        static EquationParameterUtils()
+
+        public static Dictionary<string, List<string>> Parameters { get; private set; }
+
+        private static bool IsNumericType(Type type)
         {
-            m_parameters = new Dictionary<ParameterCategory, List<Parameter>>();
-            m_parameters[ParameterCategory.MATCH] = new List<Parameter>()
-            {
-                Parameter.DURATION
-            };
-
-            m_parameters[ParameterCategory.TEAM] = new List<Parameter>()
-            {
-                //Parameter.CS,
-                //Parameter.VISIONSCORE
-            };
-
-            m_parameters[ParameterCategory.PARTICIPANT] = new List<Parameter>()
-            {
-                Parameter.CS,
-                Parameter.VISIONSCORE
-            };
+            return m_numericTypes.Contains(type);
         }
 
-        public static bool TryGetParameterValue(ParameterCategory category, Parameter parameter, MatchDB matchD, string puuid, out double result)
+        private static Dictionary<string, string> GetTuples(Type t)
+        {
+            PropertyInfo[] property = t.GetProperties();
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            foreach (PropertyInfo p in property)
+                if (IsNumericType(p.PropertyType))
+                    parameters.Add(p.Name.ToUpper(), p.Name);
+            return parameters;
+        }
+
+        static EquationParameterUtils()
+        {
+            m_parameters = new Dictionary<ParameterCategory, Dictionary<string, string>>();
+            //Match
+            m_parameters.Add(ParameterCategory.MATCH, GetTuples(typeof(MatchDB)));
+            //Team
+            m_parameters.Add(ParameterCategory.TEAM, GetTuples(typeof(TeamDB)));
+            //Participant
+            m_parameters.Add(ParameterCategory.PARTICIPANT, GetTuples(typeof(ParticipantDB)));
+
+            //Get public parameters
+            Parameters = new Dictionary<string, List<string>>();
+            Parameters.Add(ParameterCategory.MATCH.ToString(), m_parameters[ParameterCategory.MATCH].Select(s => s.Key).ToList());
+            Parameters.Add(ParameterCategory.TEAM.ToString(), m_parameters[ParameterCategory.TEAM].Select(s => s.Key).ToList());
+            Parameters.Add(ParameterCategory.PARTICIPANT.ToString(), m_parameters[ParameterCategory.PARTICIPANT].Select(s => s.Key).ToList());
+        }
+
+        public static bool TryGetParameterValue(ParameterCategory category, string parameter, MatchDB matchDB, string puuid, out double result)
         {
             result = double.MinValue;
             try
             {
+                if (!m_parameters.TryGetValue(category, out Dictionary<string, string> parameters))
+                    return false;
+                object obj = null;
                 switch (category)
                 {
                     case ParameterCategory.MATCH:
-                        if (!GetMatchParameter(parameter, matchD, out result))
-                            return false;
-                        return true;
-
+                        obj = matchDB;
+                        break;
                     case ParameterCategory.TEAM:
-                        if (!GetTeamParameter(parameter, matchD, puuid, out result))
-                            return false;
-                        return true;
-
+                        obj = matchDB.GetTeamByPUUID(puuid);
+                        break;
                     case ParameterCategory.PARTICIPANT:
-                        if (!GetParticipantParameter(parameter, matchD, puuid, out result))
-                            return false;
-                        return true;
+                        obj = matchDB.GetParticipantByPUUID(puuid);
+                        break;
+                    default:
+                        return false;
                 }
+                if (obj == null)
+                    return false;
+                if (TryToParseProperty(obj, parameter, out result))
+                    return true;
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return false;
             }
-            return false;
         }
 
-        public static bool ValidateParameter(string parameterString, out ParameterCategory category, out Parameter parameter)
+        private static bool TryToParseProperty(object obj, string property, out double result)
+        {
+            result = Double.MinValue;
+            try
+            {
+                var propertyVal = obj.GetType().GetProperty(property).GetValue(obj);
+                if (propertyVal == null)
+                    return false;
+                if (propertyVal is IConvertible)
+                {
+                    result = ((IConvertible)propertyVal).ToDouble(CultureInfo.InvariantCulture);
+                }
+                else
+                    return false;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            return true;
+        }
+
+        public static bool ValidateParameter(string parameterString, out ParameterCategory category, out string parameter)
         {
             category = ParameterCategory.INVALID;
-            parameter = Parameter.INVALID;
+            parameter = null;
             parameterString = parameterString.Replace(STARTING_CHAR, string.Empty);
             parameterString = parameterString.Replace(ENDING_CHAR, string.Empty);
             string[] splittedParameter = parameterString.Split(SPLITTING_CHAR);
@@ -84,96 +120,21 @@ namespace Oinky.TrainingAppAPI.Utils
                 return false;
             if (!Enum.TryParse(splittedParameter[0], out category))
                 return false;
-            if (!Enum.TryParse(splittedParameter[1], out parameter))
+            if (!m_parameters.ContainsKey(category))
                 return false;
-            return m_parameters.ContainsKey(category) && m_parameters[category].Contains(parameter);
-        }
-
-        private static bool GetMatchParameter(Parameter parameter, MatchDB match, out double result)
-        {
-            result = double.MinValue;
-            bool flag = true;
-            try
-            {
-                switch (parameter)
-                {
-                    case Parameter.DURATION:
-                        result = match.GameDuration;
-                        break;
-
-                    default:
-                        flag = false;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-
-            return flag;
-        }
-
-        private static bool GetParticipantParameter(Parameter parameter, MatchDB match, string puuid, out double result)
-        {
-            result = double.MinValue;
-            bool flag = true;
-            ParticipantDB participant = match.GetParticipantByPUUID(puuid);
-            if (participant == null)
-                return false;
-            try
-            {
-                switch (parameter)
-                {
-                    case Parameter.CS:
-                        result = participant.TotalMinionsKilled + participant.NeutralMinionsKilled;
-                        break;
-
-                    case Parameter.VISIONSCORE:
-                        result = participant.VisionScore;
-                        break;
-
-                    default:
-                        flag = false;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-            return flag;
-        }
-
-        private static bool GetTeamParameter(Parameter parameter, MatchDB match, string puuid, out double result)
-        {
-            result = double.MinValue;
-            bool flag = true;
-            TeamDB team = match.GetTeamByPUUID(puuid);
-            if (team == null)
-                return false;
-            try
-            {
-                switch (parameter)
-                {
-                    default:
-                        flag = false;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-            return flag;
+            Dictionary<string, string> parameters = m_parameters[category];
+            return parameters.TryGetValue(splittedParameter[1], out parameter);
         }
 
         public static readonly string ENDING_CHAR = "}";
         public static readonly string SPLITTING_CHAR = ":";
         public static readonly string STARTING_CHAR = "{";
-        private static Dictionary<ParameterCategory, List<Parameter>> m_parameters = null;
+
+        private static HashSet<Type> m_numericTypes = new HashSet<Type>
+        {
+            typeof(decimal), typeof(long),typeof(int), typeof(double)
+        };
+
+        private static Dictionary<ParameterCategory, Dictionary<string, string>> m_parameters = null;
     }
 }

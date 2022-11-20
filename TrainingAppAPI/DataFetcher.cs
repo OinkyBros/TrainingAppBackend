@@ -21,6 +21,9 @@ namespace Oinky.TrainingAppAPI
         {
             //Get Riot Client
             m_riotClient = RiotClient.Instance;
+
+            var d = EquationParameterUtils.STARTING_CHAR;
+
             //Get Registered Summoners
             List<SummonerDB> summoners = await GetInitialSummonersAsync();
 

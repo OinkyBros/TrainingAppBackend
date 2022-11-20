@@ -253,7 +253,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                         Deaths = part.Deaths,
                         Kills = part.Kills,
                         VisionScore = part.VisionScore,
-                        CS = part.TotalMinionsKilled + part.NeutralMinionsKilled,
+                        CS = part.CS,
                         BaronKills = part.BaronKills,
                         BasicPings = part.BasicPings,
                         BountyLevel = part.BountyLevel,

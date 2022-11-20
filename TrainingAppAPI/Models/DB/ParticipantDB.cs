@@ -20,6 +20,14 @@ namespace Oinky.TrainingAppAPI.Models.DB
         public int ChampLevel { get; set; }
         public int ConsumablesPurchased { get; set; }
 
+        public int CS
+        {
+            get
+            {
+                return TotalMinionsKilled + NeutralMinionsKilled;
+            }
+        }
+
         public int DamageDealtToBuildings { get; set; }
 
         public int DamageDealtToObjectives { get; set; }
