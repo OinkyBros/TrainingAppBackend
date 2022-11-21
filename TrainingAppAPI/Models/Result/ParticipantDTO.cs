@@ -8,11 +8,8 @@ namespace Oinky.TrainingAppAPI.Models.Result
         [JsonPropertyName("Champion")]
         public string Champion { get; set; } = null;
 
-        [JsonPropertyName("ChampionIcon")]
-        public Uri ChampionIcon { get; set; } = null;
-
         [JsonPropertyName("Icon")]
-        public Uri Icon { get; set; } = null;
+        public int Icon { get; set; }
 
         [JsonPropertyName("IsOinky")]
         public bool IsOinky { get; set; }

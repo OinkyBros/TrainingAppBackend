@@ -243,8 +243,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                     ExtendedParticipantDTO participantDTO = new ExtendedParticipantDTO()
                     {
                         Champion = part.ChampionName,
-                        ChampionIcon = null,
-                        Icon = null,
+                        Icon = part.ProfileIcon,
                         IsOinky = CheckIfOinky(part.SummonerName),
                         Role = part.Role,
                         SummonerID = part.Puuid,
@@ -396,8 +395,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                     ParticipantDTO participantDTO = new ParticipantDTO()
                     {
                         Champion = participant.ChampionName,
-                        ChampionIcon = null,
-                        Icon = null,
+                        Icon = participant.ProfileIcon,
                         IsOinky = CheckIfOinky(participant.SummonerName),
                         Role = participant.Role,
                         SummonerID = participant.Puuid,

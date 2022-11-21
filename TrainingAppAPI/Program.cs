@@ -8,13 +8,14 @@ using Oinky.TrainingAppAPI.Repositories.Interfaces;
 using Oinky.TrainingAppAPI.Repositories.MSSQL;
 using Oinky.TrainingAppAPI.Services;
 using Oinky.TrainingAppAPI.Services.Interfaces;
+using Oinky.TrainingAppAPI.Utils;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 IWebHostEnvironment environment = builder.Environment;
 
 //Set Root Path
-Environment.SetEnvironmentVariable("ENV_ROOT_PATH", environment.ContentRootPath);
+Environment.SetEnvironmentVariable(APIUtils.CONTENT_ROOT_PATH_PARAM, environment.ContentRootPath);
 
 //Configuration
 ConfigurationManager configuration = builder.Configuration;
@@ -50,6 +51,7 @@ builder.Services.AddTransient<IGoalRepo, GoalMSSQLRepo>();
 builder.Services.AddTransient<ISummonerService, SummonerService>();
 builder.Services.AddTransient<IMatchService, MatchService>();
 builder.Services.AddTransient<IGoalService, GoalService>();
+builder.Services.AddSingleton<IconService>();
 //Add Background Service
 builder.Services.AddHostedService<DataFetcherService>();
 

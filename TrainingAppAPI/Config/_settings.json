@@ -9,5 +9,10 @@
   "RiotClientSettings": {
     "ApiKey": "" //ADD API_KEY
   },
+  "IconSettings": {
+    "BasePath": "",
+    "ChampionFolder": "",
+    "ProfileFolder": ""
+  },
   "AllowedHosts": "*"
 }
