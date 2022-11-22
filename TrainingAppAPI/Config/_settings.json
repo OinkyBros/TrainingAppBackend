@@ -17,6 +17,8 @@
   "APISettings": {
     "Oinkies": [
     ],
+    "Modes": [
+    ],
     "StartTimestamp": 0
   },
   "AllowedHosts": "*"
