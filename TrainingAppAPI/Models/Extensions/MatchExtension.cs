@@ -16,23 +16,41 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
         public static int ConvertRiotMode(int mode)
         {
             //See: https://static.developer.riotgames.com/docs/lol/queues.json
+            GameMode gameMode;
             switch (mode)
             {
+                case 0:
+                    gameMode = GameMode.CUSTOM;
+                    //return (int)GameMode.CUSTOM;
+                    break;
+
                 case 400:
-                    return (int)GameMode.NORMAL;
+                    gameMode = GameMode.NORMAL;
+                    break;
 
                 case 420:
-                    return (int)GameMode.DUO;
+                    gameMode = GameMode.DUO;
+                    break;
 
                 case 440:
-                    return (int)GameMode.FLEX;
+                    gameMode = GameMode.FLEX;
+                    break;
+
+                case 450:
+                    gameMode = GameMode.ARAM;
+                    break;
 
                 case 700:
-                    return (int)GameMode.CLASH;
+                    gameMode = GameMode.CLASH;
+                    break;
 
                 default:
                     return -1;
             }
+
+            if (!APIUtils.Modes.Contains(gameMode))
+                return -1;
+            return (int)gameMode;
         }
 
         public static ParticipantDB GetParticipantByPUUID(this MatchDB matchDB, string puuid)

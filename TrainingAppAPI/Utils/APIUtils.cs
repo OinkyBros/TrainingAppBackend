@@ -1,10 +1,21 @@
 ﻿using Oinky.TrainingAppAPI.Models.Configuration;
+using Oinky.TrainingAppAPI.Models.Enums;
 
 namespace Oinky.TrainingAppAPI.Utils
 {
     public class APIUtils
     {
         public static APISettings APISettings { get; set; }
+
+        public static List<GameMode> Modes
+        {
+            get
+            {
+                if (APISettings == null || APISettings.Modes == null)
+                    return new List<GameMode>();
+                return APISettings.Modes;
+            }
+        }
 
         public static List<string> Oinkies
         {
@@ -22,7 +33,7 @@ namespace Oinky.TrainingAppAPI.Utils
             {
                 if (APISettings == null)
                     return 1659304800;
-                return APISettings.StartingTimestamp;
+                return APISettings.StartTimestamp;
             }
         }
 
