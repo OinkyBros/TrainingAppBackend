@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Oinky.TrainingAppAPI;
 using Oinky.TrainingAppAPI.Models.Configuration;
-using Oinky.TrainingAppAPI.Repositories;
 using Oinky.TrainingAppAPI.Repositories.Interfaces;
 using Oinky.TrainingAppAPI.Repositories.MSSQL;
 using Oinky.TrainingAppAPI.Services;
@@ -59,6 +58,9 @@ builder.Services.AddHostedService<DataFetcherService>();
 builder.Services.AddCors();
 
 var app = builder.Build();
+
+//Init APIUtils
+APIUtils.APISettings = builder.Configuration.GetSection("APISettings").Get<APISettings>();
 
 //Init RiotClient
 RiotClient.Init(builder.Configuration.GetSection("RiotClientSettings").Get<RiotClientSettings>(), app.Services.GetRequiredService<ILogger<RiotClient>>());

@@ -32,7 +32,7 @@ namespace Oinky.TrainingAppAPI.Controllers.API
             FileInfo icon = m_iconService.GetChampionIcon(championName);
             if (icon == null)
                 return NotFound();
-            return File(System.IO.File.OpenRead(icon.FullName), "image/jpeg");
+            return File(System.IO.File.OpenRead(icon.FullName), "image/png");
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Oinky.TrainingAppAPI.Controllers.API
             FileInfo icon = m_iconService.GetProfileIcon(profileID);
             if (icon == null)
                 return NotFound();
-            return File(System.IO.File.OpenRead(icon.FullName), "image/jpeg");
+            return File(System.IO.File.OpenRead(icon.FullName), "image/png");
         }
 
         private IconService m_iconService;

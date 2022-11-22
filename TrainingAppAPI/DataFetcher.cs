@@ -118,7 +118,7 @@ namespace Oinky.TrainingAppAPI
                 summoners = new List<SummonerDB>();
 
             //Get initial catalog
-            List<string> oinkyCatalog = APIUtils.OINKIES;
+            List<string> oinkyCatalog = APIUtils.Oinkies;
             SummonerRiotDTO oinkyRiot = null;
             foreach (string oinky in oinkyCatalog)
             {
@@ -130,7 +130,7 @@ namespace Oinky.TrainingAppAPI
                     if (oinkyRiot == null)
                         continue;
                     SummonerDB oinkyDB = oinkyRiot.ToDBModel();
-                    oinkyDB.LastUpdate = FIRST_TIMESTAMP;
+                    oinkyDB.LastUpdate = APIUtils.StartingTimestamp;
                     if (!await m_summonerService.AddSummonerAsync(oinkyDB))
                         oinkyRiot = null;
                     else
@@ -141,7 +141,6 @@ namespace Oinky.TrainingAppAPI
             return summoners;
         }
 
-        private static readonly long FIRST_TIMESTAMP = 1659304800;
         private IConfiguration m_config;
         private ILogger<DataFetcher> m_logger;
         private IMatchService m_matchService;

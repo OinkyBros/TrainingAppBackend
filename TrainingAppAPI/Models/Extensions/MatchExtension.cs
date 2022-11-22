@@ -10,7 +10,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
     {
         public static bool CheckIfOinky(string summonerName)
         {
-            return APIUtils.OINKIES.Contains(summonerName);
+            return APIUtils.Oinkies.Contains(summonerName);
         }
 
         public static int ConvertRiotMode(int mode)

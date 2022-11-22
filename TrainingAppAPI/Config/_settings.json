@@ -14,5 +14,10 @@
     "ChampionFolder": "",
     "ProfileFolder": ""
   },
+  "APISettings": {
+    "Oinkies": [
+    ],
+    "StartTimestamp": 0
+  },
   "AllowedHosts": "*"
 }
