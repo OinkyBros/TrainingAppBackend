@@ -5,6 +5,8 @@ using Oinky.TrainingAppAPI.Services.Interfaces;
 using Oinky.TrainingAppAPI.Utils;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Oinky.TrainingAppAPI.Controllers.API
 {
@@ -21,9 +23,21 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         [HttpPost]
         [SwaggerResponse((int) HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Description = "The goal couldnt be added, because the goal was either invalid or not present")]
-        public async Task<IActionResult> AddGoal([FromBody] AddGoalRequest requestModel)
+        public async Task<IActionResult> AddGoal()
         {
-            return await m_goalService.AddGoalAsync(requestModel);
+            try
+            {
+                using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
+                {
+                    string body = await stream.ReadToEndAsync();
+                    AddGoalRequest requestModel = JsonSerializer.Deserialize<AddGoalRequest>(body);
+                    return await m_goalService.AddGoalAsync(requestModel);
+                }
+            } catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new StatusCodeResult(500);
+            }
         }
 
         /// <summary>
