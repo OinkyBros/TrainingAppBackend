@@ -139,6 +139,8 @@ namespace Oinky.TrainingAppAPI.Utils
                                 operatorToken = operatorStack.Peek();
                                 if (operatorToken.TokenType == TokenType.Operator)
                                     o2 = m_availableOperators[operatorToken.Value];
+                                else
+                                    break;
                             }
                             operatorStack.Push(token);
                         }
