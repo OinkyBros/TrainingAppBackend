@@ -89,7 +89,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseCors(option => option.AllowAnyOrigin().AllowAnyMethod());
+app.UseCors(option => option.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
 app.MapControllers();
 

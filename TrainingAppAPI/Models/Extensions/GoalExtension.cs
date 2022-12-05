@@ -1,11 +1,27 @@
 ﻿using Oinky.TrainingAppAPI.Models.DB;
 using Oinky.TrainingAppAPI.Models.Request;
+using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Utils;
 
 namespace Oinky.TrainingAppAPI.Models.Extensions
 {
     public static class GoalExtension
     {
+
+        public static ExtendedGoalDTO ConvertToExtended(this GoalDB goalDB)
+        {
+            return new ExtendedGoalDTO()
+            {
+                BotGoal = goalDB.BotGoal,
+                GoalID = goalDB.GoalID,
+                DisplayName = goalDB.DisplayName,
+                JungleGoal = goalDB.JungleGoal,
+                MidGoal = goalDB.MidGoal,
+                SuppGoal = goalDB.SuppGoal,
+                TopGoal = goalDB.TopGoal
+            };
+        }
+
         public static GoalDB ConvertToDB(this AddGoalRequest request)
         {
             MathEquationParser parser = new MathEquationParser();

@@ -12,6 +12,11 @@ namespace Oinky.TrainingAppAPI.Services.Interfaces
 
         Task<bool> CheckIfGoalExistsAsync(Guid goalID);
 
+        Task<ExtendedGoalDTO> GetGoalAsync(Guid goalID);
+
+        Task<bool> UpdateGoalAsync(Guid goalID, AddGoalRequest request);
+
         Task<GoalOverviewDTO> GetOverviewAsync();
+        Task<bool> DeleteGoalAsync(Guid goalID);
     }
 }

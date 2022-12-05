@@ -21,23 +21,82 @@ namespace Oinky.TrainingAppAPI.Controllers.API
         }
 
         [HttpPost]
-        [SwaggerResponse((int) HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Description = "The goal couldnt be added, because the goal was either invalid or not present")]
-        public async Task<IActionResult> AddGoal()
+        public async Task<IActionResult> AddGoal([FromBody] AddGoalRequest requestModel)
         {
             try
             {
-                using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
-                {
-                    string body = await stream.ReadToEndAsync();
-                    AddGoalRequest requestModel = JsonSerializer.Deserialize<AddGoalRequest>(body);
-                    return await m_goalService.AddGoalAsync(requestModel);
-                }
-            } catch(Exception ex)
+                return await m_goalService.AddGoalAsync(requestModel);
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 return new StatusCodeResult(500);
             }
+        }
+
+        /// <summary>
+        /// Update the goal with the given ID.
+        /// </summary>
+        /// <param name="goalID">ID of the goal</param>
+        /// <param name="requestModel">The new goal</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("{goalID}")]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match or goal with the given ID found")]
+        public async Task<IActionResult> UpdateGoal(string goalID, [FromBody] AddGoalRequest requestModel)
+        {
+            if (!Guid.TryParse(goalID, out Guid goalGUID))
+                return BadRequest("GoalID is not a valid guid");
+            bool exists = await m_goalService.CheckIfGoalExistsAsync(goalGUID);
+            if (!exists)
+                return NotFound("Goal not found");
+            if (await m_goalService.UpdateGoalAsync(goalGUID, requestModel))
+                return Ok();
+            return new StatusCodeResult((int)HttpStatusCode.NotModified);
+        }
+
+        /// <summary>
+        /// Delete the goal with the given ID.
+        /// </summary>
+        /// <param name="goalID">ID of the goal</param>
+        /// <returns></returns>
+        [HttpDelete]
+        [Route("{goalID}")]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match or goal with the given ID found")]
+        public async Task<IActionResult> DeleteGoal(string goalID)
+        {
+            if (!Guid.TryParse(goalID, out Guid goalGUID))
+                return BadRequest("GoalID is not a valid guid");
+            bool exists = await m_goalService.CheckIfGoalExistsAsync(goalGUID);
+            if (!exists)
+                return NotFound("Goal not found");
+            if (await m_goalService.DeleteGoalAsync(goalGUID))
+                return Ok();
+            return new StatusCodeResult((int)HttpStatusCode.NotModified);
+        }
+
+
+        /// <summary>
+        /// Get the goal with a specific ID.
+        /// </summary>
+        /// <param name="goalID">ID of the goal</param>
+        /// <returns>The requested goal connected to the ID</returns>
+        [HttpGet]
+        [Route("{goalID}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(List<ExtendedGoalDTO>))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Description = "No match or goal with the given ID found")]
+        public async Task<IActionResult> GetGoal(string goalID)
+        {
+            if (!Guid.TryParse(goalID, out Guid goalGUID))
+                return BadRequest("GoalID is not a valid guid");
+            var result = await m_goalService.GetGoalAsync(goalGUID);
+            if (result == null)
+                return NotFound("Goal not found");
+            return Ok(result);
         }
 
         /// <summary>

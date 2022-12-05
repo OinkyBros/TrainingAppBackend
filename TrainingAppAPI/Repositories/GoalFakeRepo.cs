@@ -1,15 +1,27 @@
 ﻿using Oinky.TrainingAppAPI.Models.DB;
-using Oinky.TrainingAppAPI.Models.Result;
 using Oinky.TrainingAppAPI.Repositories.Interfaces;
 
 namespace Oinky.TrainingAppAPI.Repositories
 {
     public class GoalFakeRepo : IGoalRepo
     {
+        public Task<bool> AddGoalAsync(GoalDB goalDB)
+        {
+            m_goals.Add(goalDB.GoalID, goalDB);
+            return Task.FromResult(true);
+        }
+
+        public Task<bool> DeleteGoalAsync(Guid goalID)
+        {
+            if (!m_goals.ContainsKey(goalID))
+                return Task.FromResult(false);
+            return Task.FromResult(m_goals.Remove(goalID));
+        }
+
         public Task<GoalDB> GetGoalAsync(Guid goalID)
         {
             GoalDB goalDB = null;
-            if(m_goals.TryGetValue(goalID, out goalDB))
+            if (m_goals.TryGetValue(goalID, out goalDB))
                 return Task.FromResult(goalDB);
             return null;
         }
@@ -19,9 +31,11 @@ namespace Oinky.TrainingAppAPI.Repositories
             return Task.FromResult(m_goals.Values.ToList());
         }
 
-        public Task<bool> AddGoalAsync(GoalDB goalDB)
+        public Task<bool> UpdateGoalAsync(GoalDB goalDB)
         {
-            m_goals.Add(goalDB.GoalID, goalDB);
+            if (!m_goals.ContainsKey(goalDB.GoalID))
+                return Task.FromResult(false);
+            m_goals[goalDB.GoalID] = goalDB;
             return Task.FromResult(true);
         }
 

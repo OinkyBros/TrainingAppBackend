@@ -6,8 +6,12 @@ namespace Oinky.TrainingAppAPI.Repositories.Interfaces
     {
         Task<bool> AddGoalAsync(GoalDB goalDB);
 
+        Task<bool> DeleteGoalAsync(Guid goalID);
+
         Task<GoalDB> GetGoalAsync(Guid goalID);
 
         Task<List<GoalDB>> GetOverviewAsync();
+
+        Task<bool> UpdateGoalAsync(GoalDB goalDB);
     }
 }

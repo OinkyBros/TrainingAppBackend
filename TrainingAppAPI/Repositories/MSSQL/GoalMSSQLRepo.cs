@@ -15,6 +15,67 @@ namespace Oinky.TrainingAppAPI.Repositories.MSSQL
             m_logger = logger;
         }
 
+        public async Task<bool> AddGoalAsync(GoalDB goalDB)
+        {
+            using (SqlConnection connection = new SqlConnection(m_connectionString))
+            {
+                try
+                {
+                    string sql = @"INSERT INTO [dbo].[Goal](GoalID, DisplayName, TopGoal, JungleGoal, MidGoal, BotGoal, SuppGoal)
+                            VALUES (@GoalID, @DisplayName, @TopGoal, @JungleGoal, @MidGoal, @BotGoal, @SuppGoal)";
+
+                    {
+                        connection.Open();
+                        SqlTransaction transaction = connection.BeginTransaction();
+                        //Add match
+                        if (await connection.ExecuteAsync(sql, goalDB, transaction) < 1)
+                        {
+                            //Cleanup
+                            transaction.Rollback();
+                            return false;
+                        }
+                        await transaction.CommitAsync();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    m_logger.LogError(ex, ex.Message);
+                    return false;
+                }
+            }
+        }
+
+        public async Task<bool> DeleteGoalAsync(Guid goalID)
+        {
+            using (SqlConnection connection = new SqlConnection(m_connectionString))
+            {
+                try
+                {
+                    string sql = @"DELETE FROM [dbo].[Goal] WHERE GoalID=@GoalID;";
+
+                    {
+                        connection.Open();
+                        SqlTransaction transaction = connection.BeginTransaction();
+                        //Add match
+                        if (await connection.ExecuteAsync(sql, new { GoalID = goalID }, transaction) < 1)
+                        {
+                            //Cleanup
+                            transaction.Rollback();
+                            return false;
+                        }
+                        await transaction.CommitAsync();
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    m_logger.LogError(ex, ex.Message);
+                    return false;
+                }
+            }
+        }
+
         public async Task<GoalDB> GetGoalAsync(Guid goalID)
         {
             try
@@ -50,14 +111,18 @@ namespace Oinky.TrainingAppAPI.Repositories.MSSQL
             }
         }
 
-        public async Task<bool> AddGoalAsync(GoalDB goalDB)
+        public async Task<bool> UpdateGoalAsync(GoalDB goalDB)
         {
             using (SqlConnection connection = new SqlConnection(m_connectionString))
             {
                 try
                 {
-                    string sql = @"INSERT INTO [dbo].[Goal](GoalID, DisplayName, TopGoal, JungleGoal, MidGoal, BotGoal, SuppGoal)
-                            VALUES (@GoalID, @DisplayName, @TopGoal, @JungleGoal, @MidGoal, @BotGoal, @SuppGoal)";
+                    string sql = @"UPDATE [dbo].[Goal] SET DisplayName = @DisplayName,
+                                                            TopGoal = @TopGoal,
+                                                            JungleGoal = @JungleGoal,
+                                                            MidGoal = @MidGoal,
+                                                            BotGoal = @BotGoal,
+                                                            SuppGoal = @SuppGoal WHERE GoalID=@GoalID";
 
                     {
                         connection.Open();

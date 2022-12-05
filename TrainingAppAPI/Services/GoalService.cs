@@ -18,6 +18,19 @@ namespace Oinky.TrainingAppAPI.Services
             m_matchRepo = matchRepo;
         }
 
+        public async Task<IActionResult> AddGoalAsync(AddGoalRequest request)
+        {
+            //Convert
+            GoalDB goalDB = request.ConvertToDB();
+            if (goalDB == null)
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            //Add
+            if (await m_goalRepo.AddGoalAsync(goalDB))
+                return new OkResult();
+            else
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+        }
+
         public async Task<GoalResultDTO> CalculateGoalAsync(Guid goalID, string matchID)
         {
             MatchDB match = await m_matchRepo.GetMatchAsync(matchID);
@@ -88,6 +101,12 @@ namespace Oinky.TrainingAppAPI.Services
             return goal != null;
         }
 
+        public async Task<ExtendedGoalDTO> GetGoalAsync(Guid goalID)
+        {
+            GoalDB goal = await m_goalRepo.GetGoalAsync(goalID);
+            return goal == null ? null : goal.ConvertToExtended();
+        }
+
         public async Task<GoalOverviewDTO> GetOverviewAsync()
         {
             GoalOverviewDTO overview = new GoalOverviewDTO();
@@ -104,17 +123,20 @@ namespace Oinky.TrainingAppAPI.Services
             return overview;
         }
 
-        public async Task<IActionResult> AddGoalAsync(AddGoalRequest request)
+        public async Task<bool> UpdateGoalAsync(Guid goalID, AddGoalRequest request)
         {
-            //Convert
+            if (!await CheckIfGoalExistsAsync(goalID))
+                return false;
             GoalDB goalDB = request.ConvertToDB();
-            if(goalDB == null)
-                return new StatusCodeResult(StatusCodes.Status400BadRequest);
-            //Add
-            if (await m_goalRepo.AddGoalAsync(goalDB))
-                return new OkResult();
-            else
-                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            goalDB.GoalID = goalID;
+            return await m_goalRepo.UpdateGoalAsync(goalDB);
+        }
+
+        public async  Task<bool> DeleteGoalAsync(Guid goalID)
+        {
+            if (!await CheckIfGoalExistsAsync(goalID))
+                return false;
+            return await m_goalRepo.DeleteGoalAsync(goalID);
         }
 
         private IGoalRepo m_goalRepo;
