@@ -105,6 +105,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                     MatchID = dto.Metadata.MatchId,
                     Participants = new List<ParticipantDB>()
                 };
+                int teamDamage = 0;
                 foreach (ParticipantRiotDTO participantDTO in dto.Info.Participants.Where(p => p.TeamId == teamDTO.TeamId))
                 {
                     ParticipantDB participantDB = new ParticipantDB()
@@ -212,8 +213,11 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                         WardsKilled = participantDTO.WardsKilled,
                         WardsPlaced = participantDTO.WardsPlaced
                     };
+                    teamDamage += participantDTO.TotalDamageDealtToChampions;
                     teamDB.Participants.Add(participantDB);
                 }
+                foreach (ParticipantDB participant in teamDB.Participants)
+                    participant.DamageShare = (double)participant.TotalDamageDealtToChampions / teamDamage;
                 teams.Add(teamDB);
             }
 
@@ -284,6 +288,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                         DamageDealtToObjectives = part.DamageDealtToObjectives,
                         DamageDealtToTurrets = part.DamageDealtToTurrets,
                         DamageSelfMitigated = part.DamageSelfMitigated,
+                        DamageShare = part.DamageShare,
                         DetectorWardsPlaced = part.DetectorWardsPlaced,
                         DoubleKills = part.DoubleKills,
                         DragonKills = part.DragonKills,
@@ -381,7 +386,7 @@ namespace Oinky.TrainingAppAPI.Models.Extensions
                 foreach (ExtendedParticipantDTO participant in teamDTO.Participants)
                 {
                     participant.GoldShare = (double)participant.GoldEarned / gold;
-                    participant.DamageShare = (double)participant.TotalDamageDealtToChampions / damage;
+                    //participant.DamageShare = (double)participant.TotalDamageDealtToChampions / damage;
                 }
                 result.Teams.Add(teamDTO);
             }

@@ -36,8 +36,9 @@ namespace Oinky.TrainingAppAPI.Models.DB
 
         public int DamageSelfMitigated { get; set; }
 
-        public int Deaths { get; set; }
+        public double DamageShare { get; set; }
 
+        public int Deaths { get; set; }
         public int DetectorWardsPlaced { get; set; }
 
         public int DoubleKills { get; set; }

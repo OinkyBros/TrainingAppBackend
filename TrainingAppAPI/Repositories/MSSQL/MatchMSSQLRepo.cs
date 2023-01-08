@@ -173,6 +173,15 @@ namespace Oinky.TrainingAppAPI.Repositories.MSSQL
                     {
                         team.Participants = (await connection.QueryAsync<ParticipantDB>(sql, new { TeamID = team.TeamId })).ToList();
                     }
+                    //Add DamageDealt
+                    foreach(TeamDB team in matchDB.Teams)
+                    {
+                        int damage = 0;
+                        foreach (ParticipantDB participant in team.Participants)
+                            damage += participant.TotalDamageDealtToChampions;
+                        foreach(ParticipantDB participant in team.Participants)
+                            participant.DamageShare = (double) participant.TotalDamageDealtToChampions/ damage;
+                    }
                     return matchDB;
                 }
             }
